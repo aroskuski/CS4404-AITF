@@ -7,6 +7,7 @@
 
 #ifndef FILTER_H_
 #define FILTER_H_
+#include <libnetfilter_queue/libnetfilter_queue.h>
 
 class Filter {
 public:
