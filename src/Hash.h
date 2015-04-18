@@ -11,6 +11,7 @@
 class Hash {
 public:
 	Hash();
+	static void hash(unsigned char *in, unsigned char *out);
 	virtual ~Hash();
 };
 

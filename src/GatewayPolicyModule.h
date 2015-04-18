@@ -7,10 +7,12 @@
 
 #ifndef GATEWAYPOLICYMODULE_H_
 #define GATEWAYPOLICYMODULE_H_
+#include "Flow.h"
 
 class GatewayPolicyModule {
 public:
 	GatewayPolicyModule();
+	virtual bool checkEscPolicy(Flow f) = 0;
 	virtual ~GatewayPolicyModule();
 };
 
