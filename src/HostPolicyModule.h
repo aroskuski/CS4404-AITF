@@ -7,6 +7,7 @@
 
 #ifndef HOSTPOLICYMODULE_H_
 #define HOSTPOLICYMODULE_H_
+#include "Flow.h"
 
 class HostPolicyModule {
 public:

@@ -24,3 +24,26 @@ Gateway::~Gateway() {
 	// TODO Auto-generated destructor stub
 }
 
+void Gateway::sendBlockReq(Flow f){
+
+}
+
+void recvBlockReq(){
+
+}
+
+void Gateway::tempBlock(){
+
+}
+
+void Gateway::remTempBlock(){
+
+}
+
+void Gateway::escalate(){
+
+}
+
+bool Gateway::checkWhitelist(){
+	return false;
+}

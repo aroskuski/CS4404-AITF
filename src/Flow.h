@@ -16,8 +16,8 @@ struct FlowEntry {
 class Flow {
 public:
 	Flow();
-	bool operator==(const Flow& lhs, const Flow& rhs);
-	bool operator!=(const Flow& lhs, const Flow& rhs);
+	bool operator==(const Flow& f);
+	bool operator!=(const Flow& f);
 	FlowEntry getAttackHost();
 	FlowEntry getAttackGateway();
 	virtual ~Flow();
