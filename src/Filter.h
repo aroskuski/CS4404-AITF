@@ -15,6 +15,9 @@ class Filter {
 public:
 	Filter();
 	virtual ~Filter();
+	void startFilterThread(bool host);
+private:
+	void filterMain();
 };
 
 #endif /* FILTER_H_ */

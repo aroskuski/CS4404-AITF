@@ -8,6 +8,7 @@
 #ifndef GATEWAY_H_
 #define GATEWAY_H_
 #include "Flow.h"
+#include "Filter.h"
 
 class Gateway {
 public:

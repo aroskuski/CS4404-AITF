@@ -11,8 +11,8 @@
 using namespace std;
 
 int main() {
-	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
-	return 0;
+	Filter filter = Filter();
+	filter.startFilterThread(false);
 }
 
 Gateway::Gateway() {
