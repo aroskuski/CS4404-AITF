@@ -8,7 +8,8 @@
 #include "Host.h"
 
 int main(){
-	Filter filter = Filter();
+	Host host = Host();
+	Filter filter = Filter(host.st);
 	//filter.startFilterThread(true);
 	int s = -1;
 	while(s < 0){
@@ -36,7 +37,7 @@ int main(){
 }
 
 Host::Host() {
-	// TODO Auto-generated constructor stub
+	st = ShadowTable();
 
 }
 
@@ -46,11 +47,11 @@ Host::~Host() {
 
 void Host::sendBlockReq(Flow f){
 
-	int s = -1;
-	while(s < 0){
-		s = socket(AF_INET, SOCK_DGRAM, 0);
-	}
 
 
+}
 
+void Host::honorBlockReq(std::string dest_addr){
+	unsigned char h[4];
+	this->st.addHost(h);
 }

@@ -9,6 +9,7 @@
 
 ShadowTable::ShadowTable() {
 	// TODO Auto-generated constructor stub
+	hostList = std::list<ShadowEntry>();
 
 }
 

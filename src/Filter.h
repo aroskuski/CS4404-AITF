@@ -10,14 +10,20 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
+#include "Host.h"
+#include "Gateway.h"
+#include "ShadowTable.h"
 
 class Filter {
 public:
-	Filter();
+	Filter(ShadowTable &st);
 	virtual ~Filter();
 	void startFilterThread(bool host);
 private:
 	void filterMain();
+	//Host &h;
+	//Gateway &g;
+	//ShadowTable &st;
 };
 
 #endif /* FILTER_H_ */

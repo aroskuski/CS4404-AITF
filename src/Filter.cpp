@@ -7,8 +7,10 @@
 
 #include "Filter.h"
 
-Filter::Filter() {
-	// TODO Auto-generated constructor stub
+Filter::Filter(ShadowTable &st) {
+	//this->st = st;
+	//this->h = Host();
+	//this->g = Gateway();
 
 }
 

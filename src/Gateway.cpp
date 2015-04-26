@@ -11,7 +11,8 @@
 using namespace std;
 
 int main() {
-	Filter filter = Filter();
+	Gateway gateway = Gateway();
+	Filter filter = Filter(gateway.st);
 	//filter.startFilterThread(false);
 
 	int s = -1;
@@ -41,7 +42,7 @@ int main() {
 
 Gateway::Gateway() {
 	// TODO Auto-generated constructor stub
-
+	st = ShadowTable();
 }
 
 Gateway::~Gateway() {

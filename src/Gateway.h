@@ -14,11 +14,12 @@
 #include <cstring>
 #include "Flow.h"
 #include "Filter.h"
+#include "ShadowTable.h"
 
 class Gateway {
 public:
 	Gateway();
-
+	ShadowTable st;
 	virtual ~Gateway();
 private:
 	void sendBlockReq(Flow f);
@@ -27,6 +28,7 @@ private:
 	void remTempBlock();
 	void escalate();
 	bool checkWhitelist();
+
 };
 
 #endif /* GATEWAY_H_ */

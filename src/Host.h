@@ -12,17 +12,20 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <cstring>
+#include <string>
 #include "Flow.h"
 #include "Filter.h"
+#include "ShadowTable.h"
 
 
 class Host {
 public:
 	Host();
 	virtual ~Host();
+	ShadowTable st;
 private:
 	void sendBlockReq(Flow f);
-	void honorBlockReq();
+	void honorBlockReq(std::string dest_addr);
 
 };
 
