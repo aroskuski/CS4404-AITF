@@ -15,13 +15,15 @@ int main(){
 		s = socket(AF_INET, SOCK_DGRAM, 0);
 	}
 
-	sockaddr_in sa;
-	memset(&sa, 0, sizeof(sockaddr_in));
-	sa.sin_family = AF_INET;
-	//sa.sin_addr.s_addr = inet_addr(SENDER_IP_ADDR);
-	sa.sin_port = htons(1025);
+	addrinfo hints, *res;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_flags = AI_PASSIVE;
 
-	bind(s, (sockaddr *)&sa, sizeof(sockaddr_in));
+    getaddrinfo(NULL, "1025", &hints, &res);
+
+	bind(s, res->ai_addr, res->ai_addrlen);
 
 	//recv(s);
 

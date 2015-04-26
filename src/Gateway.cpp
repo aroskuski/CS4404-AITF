@@ -13,6 +13,21 @@ using namespace std;
 int main() {
 	Filter filter = Filter();
 	filter.startFilterThread(false);
+
+	int s = -1;
+	while(s < 0){
+		s = socket(AF_INET, SOCK_DGRAM, 0);
+	}
+
+	addrinfo hints, *res;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_flags = AI_PASSIVE;
+
+	getaddrinfo(NULL, "1025", &hints, &res);
+
+	bind(s, res->ai_addr, res->ai_addrlen);
 }
 
 Gateway::Gateway() {
