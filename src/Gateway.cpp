@@ -12,7 +12,7 @@ using namespace std;
 
 int main() {
 	Filter filter = Filter();
-	filter.startFilterThread(false);
+	//filter.startFilterThread(false);
 
 	int s = -1;
 	while(s < 0){
@@ -28,6 +28,15 @@ int main() {
 	getaddrinfo(NULL, "1025", &hints, &res);
 
 	bind(s, res->ai_addr, res->ai_addrlen);
+
+
+	int len;
+	char buf[1024];
+	sockaddr_storage their_addr;
+	for(;;){
+		unsigned int their_addr_len = sizeof(their_addr);
+		len = recvfrom(s,buf,1024 - 1, 0, (struct sockaddr *)&their_addr, &their_addr_len);
+	}
 }
 
 Gateway::Gateway() {

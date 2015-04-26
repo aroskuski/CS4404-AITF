@@ -7,6 +7,11 @@
 
 #ifndef GATEWAY_H_
 #define GATEWAY_H_
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <cstring>
 #include "Flow.h"
 #include "Filter.h"
 

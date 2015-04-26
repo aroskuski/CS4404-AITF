@@ -9,7 +9,7 @@
 
 int main(){
 	Filter filter = Filter();
-	filter.startFilterThread(true);
+	//filter.startFilterThread(true);
 	int s = -1;
 	while(s < 0){
 		s = socket(AF_INET, SOCK_DGRAM, 0);
@@ -23,9 +23,15 @@ int main(){
 
     getaddrinfo(NULL, "1025", &hints, &res);
 
-	bind(s, res->ai_addr, res->ai_addrlen);
+    bind(s, res->ai_addr, res->ai_addrlen);
 
-	//recv(s);
+    int len;
+    char buf[1024];
+    sockaddr_storage their_addr;
+    for(;;){
+    	unsigned int their_addr_len = sizeof(their_addr);
+    	len = recvfrom(s,buf,1024 - 1, 0, (struct sockaddr *)&their_addr, &their_addr_len);
+    }
 
 }
 
