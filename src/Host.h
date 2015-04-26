@@ -18,12 +18,13 @@
 #include "ShadowTable.h"
 
 
+
 class Host {
 public:
 	Host();
 	virtual ~Host();
+	void sendMessage(Flow f);
 	ShadowTable st;
-private:
 	void sendBlockReq(Flow f);
 	void honorBlockReq(std::string dest_addr);
 

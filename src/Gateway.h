@@ -16,10 +16,16 @@
 #include "Filter.h"
 #include "ShadowTable.h"
 
+struct message{
+	int type;
+	Flow f;
+};
+
 class Gateway {
 public:
 	Gateway();
 	ShadowTable st;
+	void sendMessage(message m);
 	virtual ~Gateway();
 private:
 	void sendBlockReq(Flow f);
