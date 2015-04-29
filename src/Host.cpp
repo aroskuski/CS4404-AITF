@@ -11,29 +11,41 @@ int main(){
 	Host host = Host();
 	Filter filter = Filter(host.st);
 	//filter.startFilterThread(true);
-	int s = -1;
-	while(s < 0){
-		s = socket(AF_INET, SOCK_DGRAM, 0);
+	pthread_t taskThread;
+
+	pthread_create(&taskThread, NULL, &hostTaskThread, NULL);
+
+	Host::s = -1;
+	while(Host::s < 0){
+		Host::s = socket(AF_INET, SOCK_STREAM, 0);
 	}
 
 	addrinfo hints, *res;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
     getaddrinfo(NULL, "1025", &hints, &res);
 
-    bind(s, res->ai_addr, res->ai_addrlen);
+    bind(Host::s, res->ai_addr, res->ai_addrlen);
+
+    listen(Host::s,10);
 
     int len;
     char buf[1024];
     sockaddr_storage their_addr;
     for(;;){
-    	unsigned int their_addr_len = sizeof(their_addr);
-    	len = recvfrom(s,buf,1024 - 1, 0, (struct sockaddr *)&their_addr, &their_addr_len);
+    	unsigned int addr_size = sizeof(their_addr);
+    	accept(Host::s, (sockaddr *) &their_addr, &addr_size);
     }
 
+}
+
+void *hostTaskThread(void *arg){
+
+
+	return NULL;
 }
 
 Host::Host() {
@@ -46,7 +58,17 @@ Host::~Host() {
 }
 
 void Host::sendBlockReq(Flow f){
+	char msg[1024];
+	int msglen = 1023;
 
+	addrinfo hints, *res;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_DGRAM;
+	getaddrinfo("0", "1025", &hints, &res);
+	int len = sendto(Host::s, msg, msglen, 0, res->ai_addr,  res->ai_addrlen);
+
+	freeaddrinfo(res);
 
 
 }

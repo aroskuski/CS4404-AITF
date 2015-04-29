@@ -13,6 +13,7 @@
 #include <netdb.h>
 #include <cstring>
 #include <string>
+#include <pthread.h>
 #include "Flow.h"
 #include "Filter.h"
 #include "ShadowTable.h"
@@ -27,7 +28,10 @@ public:
 	ShadowTable st;
 	void sendBlockReq(Flow f);
 	void honorBlockReq(std::string dest_addr);
+	static int s;
 
 };
+
+void *hostTaskThread(void *arg);
 
 #endif /* HOST_H_ */

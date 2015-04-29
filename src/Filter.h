@@ -7,6 +7,7 @@
 
 #ifndef FILTER_H_
 #define FILTER_H_
+#include <iostream>
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/types.h>
