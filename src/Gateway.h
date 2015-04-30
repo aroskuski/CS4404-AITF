@@ -19,6 +19,8 @@
 #include <list>
 #include <queue>
 #include <arpa/inet.h>
+#include <fstream>
+#include <iostream>
 #include "Flow.h"
 #include "GatewayFilter.h"
 #include "ShadowTable.h"
@@ -47,7 +49,9 @@ public:
 	void tempBlock(std::string ipaddr);
 	void remTempBlock(std::string ipaddr);
 	void escalate(Flow f);
-	bool checkBlacklist();
+	bool checkBlacklist(uint32_t u);
+	void initBlacklist();
+	static std::list<uint32_t> blacklist;
 };
 
 void *recvBlockReq(void * arg);

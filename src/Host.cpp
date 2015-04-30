@@ -17,7 +17,7 @@ int Host::s;
 int main(){
 	Host host = Host();
 	HostFilter filter = HostFilter();
-	//filter.startFilterThread(true);
+	filter.startFilterThread();
 	pthread_t taskThread;
 	pthread_t blockThread;
 

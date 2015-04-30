@@ -16,6 +16,7 @@ sem_t Gateway::qsem;
 std::queue<Flow> Gateway::q = std::queue<Flow>();
 std::list<gatewayblock> Gateway::blocklist = std::list<gatewayblock>();
 sem_t Gateway::lsem;
+std::list<uint32_t> blacklist = std::list<uint32_t>();
 
 bool operator==(const gatewayblock& lhs, const gatewayblock& rhs){
 	return lhs.ipaddr[0] == rhs.ipaddr[0] && lhs.ipaddr[1] == rhs.ipaddr[1] && lhs.ipaddr[2] == rhs.ipaddr[2] && lhs.ipaddr[3] == rhs.ipaddr[3] && lhs.ttl == rhs.ttl;
@@ -23,8 +24,10 @@ bool operator==(const gatewayblock& lhs, const gatewayblock& rhs){
 
 int main() {
 	Gateway gateway = Gateway();
-	//GatewayFilter filter = GatewayFilter();
-	//filter.startFilterThread(false);
+	GatewayFilter filter = GatewayFilter();
+	filter.startFilterThread(gateway.st);
+
+	gateway.initBlacklist();
 
 	pthread_t taskThread;
 	pthread_t blockThread;
@@ -302,8 +305,33 @@ void Gateway::escalate(Flow f){
 	}
 }
 
-bool Gateway::checkBlacklist(){
+bool Gateway::checkBlacklist(uint32_t u){
+	for(std::list<uint32_t>::iterator it = blacklist.begin(); it != blacklist.end(); it++){
+		if (*it == u){
+			return true;
+		}
+	}
 	return false;
+}
+
+void Gateway::initBlacklist(){
+	std::ifstream *in = new std::ifstream("blacklist.txt", std::ifstream::in);
+	char buf [20];
+	int bitshiftfactor = 24;
+	while(in->getline(buf, 20)){
+		uint32_t res = 0;
+		char *temp = strtok(buf, ".");
+		res += atoi(temp) << 24;
+		temp = strtok(NULL, ".");
+		res += atoi(temp) << 16;
+		temp = strtok(NULL, ".");
+		res += atoi(temp) << 8;
+		temp = strtok(NULL, ".");
+		res += atoi(temp);
+		blacklist.push_back(res);
+	}
+	in->close();
+	delete in;
 }
 
 void Gateway::sendMessage(Flow f){
