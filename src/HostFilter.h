@@ -123,6 +123,7 @@ struct routeRecord {
     struct flow pktFlow[10];
     uint16_t position;
     uint16_t length;
+    uint8_t protocol;
 };
 
 /**
