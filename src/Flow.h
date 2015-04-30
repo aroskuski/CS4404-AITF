@@ -9,16 +9,13 @@
 #define FLOW_H_
 
 #include <vector>
-
+#include <netinet/in.h>
 /**
  * C structure for a packet flow
  * - Contains the ip address of a visited machine
  * - Contains the nonce for that visited machine
  */
-struct flow {
-    in_addr ip;
-    uint64_t nonce;
-};
+
 
 struct FlowEntry {
 	unsigned char ipaddr[4];
@@ -36,7 +33,7 @@ public:
 	int size();
 	virtual ~Flow();
 	flow* getFlow();
-	std::vector<FlowEntry> flow;
+	std::vector<FlowEntry> flowlist;
 };
 
 #endif /* FLOW_H_ */
