@@ -73,16 +73,23 @@ Host::~Host() {
 }
 
 void Host::sendBlockReq(Flow f){
+	FlowEntry fe = f.getVicimGateway();
+	std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]) + ".";
 	char msg[1024];
 	int msglen = 1023;
 
 	addrinfo hints, *res;
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_DGRAM;
-	getaddrinfo("0", "1025", &hints, &res);
-	int len = sendto(Host::s, msg, msglen, 0, res->ai_addr,  res->ai_addrlen);
+	hints.ai_socktype = SOCK_STREAM;
+	getaddrinfo(ipaddr.c_str(), "1025", &hints, &res);
+	int sock = socket(AF_INET, SOCK_STREAM, 0);
+	connect(sock, res->ai_addr, res->ai_addrlen);
 
+	int len = send(sock, msg, msglen, 0);
+
+
+	shutdown(sock, 2);
 	freeaddrinfo(res);
 
 

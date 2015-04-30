@@ -20,6 +20,7 @@ public:
 	bool operator!=(const Flow& f);
 	FlowEntry getAttackHost();
 	FlowEntry getAttackGateway();
+	FlowEntry getVicimGateway();
 	virtual ~Flow();
 };
 
