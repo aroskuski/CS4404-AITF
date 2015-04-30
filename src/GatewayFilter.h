@@ -57,7 +57,8 @@ public:
      * This method is used spawning a thread for carrying out the
      * six responsibilities listed for the GatewayFilter class.
      */
-    void startFilterThread(ShadowTable &s);
+
+    void startFilterThread(ShadowTable* s);
 };
 
 /**

@@ -37,6 +37,10 @@ int main(){
 		Host::s = socket(AF_INET, SOCK_STREAM, 0);
 	}
 
+	// begin the thread for filtering packets on the host
+	HostFilter hostFilter = HostFilter();
+	hostFilter.startFilterThread();
+
 	addrinfo hints, *res;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;

@@ -12,7 +12,7 @@
  * This method is used spawning a thread for carrying out the
  * six responsibilities listed for the GatewayFilter class.
  */
-void GatewayFilter::startFilterThread(ShadowTable s) {
+void GatewayFilter::startFilterThread(ShadowTable* s) {
 	pthread_t gatewayFilterThread;
 	    if (pthread_create(&gatewayFilterThread, NULL, &gatewayFilterMain, (void*) s)) {
 	    	std::cout << "ERROR: pthread_create()" << std::endl;
@@ -33,7 +33,7 @@ void* gatewayFilterMain(void* arg) {
     char packetBuffer[4096];
     struct nfq_handle *handle;
     struct nfq_q_handle *queueHandle;
-    ShadowTable s = (ShadowTable) arg;
+    ShadowTable* s = (ShadowTable*) arg;
     
     // attempt to open a queue connection handle from the netfilter module
     if (!(handle = nfq_open())) {
