@@ -24,9 +24,10 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <pthread.h>
+#include "Host.h"
 #include "Packet.h"
 #include "HostPolicyModule.h"
-#include "Packet.h"
+
 
 #define FILTERING_REQUEST 1
 #define COUNTER_CONNECTION_INITIATION 2

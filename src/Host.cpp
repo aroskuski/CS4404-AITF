@@ -17,7 +17,7 @@ int Host::s;
 int main(){
 	Host host = Host();
 	HostFilter filter = HostFilter();
-	filter.startFilterThread();
+	filter.startFilterThread(&host);
 	pthread_t taskThread;
 	pthread_t blockThread;
 
@@ -38,8 +38,8 @@ int main(){
 	}
 
 	// begin the thread for filtering packets on the host
-	HostFilter hostFilter = HostFilter();
-	hostFilter.startFilterThread();
+	//HostFilter hostFilter = HostFilter();
+	//hostFilter.startFilterThread();
 
 	addrinfo hints, *res;
     memset(&hints, 0, sizeof(hints));
