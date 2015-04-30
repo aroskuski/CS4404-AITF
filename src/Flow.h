@@ -10,6 +10,16 @@
 
 #include <vector>
 
+/**
+ * C structure for a packet flow
+ * - Contains the ip address of a visited machine
+ * - Contains the nonce for that visited machine
+ */
+struct flow {
+    in_addr ip;
+    uint64_t nonce;
+};
+
 struct FlowEntry {
 	unsigned char ipaddr[4];
 	unsigned char nonce[64];
@@ -17,15 +27,14 @@ struct FlowEntry {
 
 class Flow {
 public:
-	Flow(std::vector<FlowEntry> f);
+	Flow(struct flow* f, int flowSize);
 	bool operator==(const Flow& f);
 	bool operator!=(const Flow& f);
 	FlowEntry getAttackHost();
 	FlowEntry getAttackGateway();
-	FlowEntry getVicimGateway();
+	FlowEntry getVictimGateway();
 	virtual ~Flow();
-	std::vector<FlowEntry> getFlow();
-private:
+	flow* getFlow();
 	std::vector<FlowEntry> flow;
 };
 
