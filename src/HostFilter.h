@@ -24,6 +24,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include "Packet.h"
+#include "HostPolicyModule.h"
 
 
 #define FILTERING_REQUEST 1
