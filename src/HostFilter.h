@@ -56,7 +56,7 @@ public:
      * This method is used spawning a thread for carrying out the
      * three responsibilities listed for the HostFilter class.
      */
-    void startFilterThread();
+    void startFilterThread(Host* host);
 };
 
 /**

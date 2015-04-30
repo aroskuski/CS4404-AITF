@@ -20,10 +20,9 @@ HostFilter::~HostFilter(){
  * This method is used spawning a thread for carrying out the
  * three responsibilities listed for the HostFilter class.
  */
-void HostFilter::startFilterThread() {
+void HostFilter::startFilterThread(Host* host) {
     pthread_t hostFilterThread;
-    int arg = 0;
-    if (pthread_create(&hostFilterThread, NULL, &hostFilterMain, (void*) &arg)) {
+    if (pthread_create(&hostFilterThread, NULL, &hostFilterMain, (void*) host)) {
     	std::cout << "ERROR: pthread_create()" << std::endl;
     	exit(1);
     }
@@ -62,7 +61,7 @@ void* hostFilterMain(void* arg) {
     }
     
     // create the handle for the nfq queue and ensure that it is linked to a callback
-    if (!(queueHandle = nfq_create_queue(handle, 0, &cb, NULL))) {
+    if (!(queueHandle = nfq_create_queue(handle, 0, &cb, arg))) {
         std::cerr << "ERROR: nfq_create_queue()" << std::endl;
         exit(1);
     }
@@ -104,6 +103,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     u_int16_t id;
     u_int8_t protocol;
     unsigned char* pktData;
+    Host* data = (Host*) cbData;
     
     struct ipPacket* regularPkt;
     struct ipPacket* newPkt;
@@ -144,7 +144,9 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
 
         // provide observed packet flow to host policy module
         HostPolicyModule policyModule = HostPolicyModule();
-        policyModule.checkHighFlowPolicy(flow);
+        if (policyModule.checkHighFlowPolicy(flow) == true){
+        	data->sendMessage(flow);
+        }
 
         // remove the route record shim from the packet
         newPkt->ipHeader = AITFPkt->ipHeader;
