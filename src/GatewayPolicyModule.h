@@ -12,7 +12,7 @@
 class GatewayPolicyModule {
 public:
 	GatewayPolicyModule();
-	virtual bool checkEscPolicy(Flow f) = 0;
+	virtual bool checkEscPolicy(Flow f);
 	virtual ~GatewayPolicyModule();
 };
 

@@ -17,27 +17,30 @@ int main() {
 
 	int s = -1;
 	while(s < 0){
-		s = socket(AF_INET, SOCK_DGRAM, 0);
+		s = socket(AF_INET, SOCK_STREAM, 0);
 	}
 
 	addrinfo hints, *res;
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_flags = AI_PASSIVE;
+	    memset(&hints, 0, sizeof(hints));
+	    hints.ai_family = AF_INET;
+	    hints.ai_socktype = SOCK_STREAM;
+	    hints.ai_flags = AI_PASSIVE;
 
-	getaddrinfo(NULL, "1025", &hints, &res);
+	    getaddrinfo(NULL, "1025", &hints, &res);
 
-	bind(s, res->ai_addr, res->ai_addrlen);
+	    bind(Gateway::s, res->ai_addr, res->ai_addrlen);
 
+	    listen(Gateway::s,10);
 
-	int len;
-	char buf[1024];
-	sockaddr_storage their_addr;
-	for(;;){
-		unsigned int their_addr_len = sizeof(their_addr);
-		len = recvfrom(s,buf,1024 - 1, 0, (struct sockaddr *)&their_addr, &their_addr_len);
-	}
+	    int len;
+	    char buf[1024];
+	    sockaddr_storage their_addr;
+	    for(;;){
+	    	unsigned int addr_size = sizeof(their_addr);
+	    	int sock = accept(Gateway::s, (sockaddr *) &their_addr, &addr_size);
+	    	pthread_t t;
+	    	pthread_create(&t, NULL, &recvBlockReq, (void *)sock);
+	    }
 }
 
 Gateway::Gateway() {
@@ -50,11 +53,52 @@ Gateway::~Gateway() {
 }
 
 void Gateway::sendBlockReq(Flow f){
+	FlowEntry fe = f.getAttackHost();
+	std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]) + ".";
+	char msg[1500];
+	int msglen = 1500;
 
+	addrinfo hints, *res;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	getaddrinfo(ipaddr.c_str(), "1025", &hints, &res);
+	int sock = socket(AF_INET, SOCK_STREAM, 0);
+	connect(sock, res->ai_addr, res->ai_addrlen);
+
+	int len = send(sock, msg, msglen, 0);
+
+
+	shutdown(sock, 2);
+	freeaddrinfo(res);
 }
 
-void recvBlockReq(){
+void *recvBlockReq(void *arg){
+	int sock = (long) arg;
+	char buf[1500];
+	int len = recv(sock, buf, 1500, 0);
+	AITFHeader *h = (AITFHeader *)buf;
 
+
+
+	return NULL;
+}
+
+void *gatewayTaskThread(void *arg){
+	Gateway &g = *arg;
+	sem_init(&Host::sem, 0 , 0);
+	sem_init(&Host::qsem, 0 , 1);
+
+	for(;;){
+		sem_wait(&Host::sem);
+		sem_wait(&Host::qsem);
+		Flow f = Host::q.front();
+		Host::q.pop();
+		sem_post(&Host::qsem);
+		g.sendBlockReq(f);
+	}
+
+	return NULL;
 }
 
 void Gateway::tempBlock(){

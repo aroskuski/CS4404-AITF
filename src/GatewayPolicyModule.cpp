@@ -16,3 +16,6 @@ GatewayPolicyModule::~GatewayPolicyModule() {
 	// TODO Auto-generated destructor stub
 }
 
+virtual bool checkEscPolicy(Flow f){
+	return true;
+}
