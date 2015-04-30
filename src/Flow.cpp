@@ -68,7 +68,7 @@ bool Flow::operator!=(const Flow& f) {
 FlowEntry Flow::getAttackHost() {
 	FlowEntry result;
 	if (flow.size() >= 4) {
-		result = flow[flow.size() - 1];
+		result = flow[0];
 	}
 	else {
 		result = nullptr;
@@ -79,7 +79,7 @@ FlowEntry Flow::getAttackHost() {
 FlowEntry Flow::getAttackGateway() {
 	FlowEntry result;
 	if (flow.size() >= 4) {
-		result = flow[flow.size()-2];
+		result = flow[1];
 	}
 	else {
 		result = nullptr;
@@ -90,7 +90,7 @@ FlowEntry Flow::getAttackGateway() {
 FlowEntry Flow::getVictimGateway() {
 	FlowEntry result;
 	if (flow.size() >= 4) {
-		result = flow[1];
+		result = flow[flow.size()-1];
 	}
 	else {
 		result = nullptr;
