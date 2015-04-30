@@ -22,6 +22,7 @@ struct AITFHeader {
     uint8_t commandFlags;
     struct flow pktFlow[6];
     uint64_t nonce;
+    uint16_t flowSize;
     uint16_t payloadSize;
 };
 
