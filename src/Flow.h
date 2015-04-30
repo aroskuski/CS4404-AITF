@@ -9,8 +9,8 @@
 #define FLOW_H_
 
 struct FlowEntry {
-	char ipaddr[4];
-	char nonce[64];
+	unsigned char ipaddr[4];
+	unsigned char nonce[64];
 };
 
 class Flow {
