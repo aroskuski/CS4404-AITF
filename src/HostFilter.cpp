@@ -87,7 +87,6 @@ int hostFilterMain() {
  * @return 0 upon success
  */
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pkt, void *cbData) {
-    std::cout << "We are now reading a packet" << std::endl;
     
     // declaration of local variables
     u_int16_t id;
@@ -95,6 +94,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     unsigned char* pktData;
     
     struct ipPacket* regularPkt;
+    struct ipPacket* newPkt;
     struct AITFPacket* AITFPkt;
     struct routeRecord* routeRecord;
     struct nfqnl_msg_packet_hdr *header;
@@ -114,7 +114,6 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
 
     // determine if the packet is an AITF packet
     protocol = (u_int8_t) regularPkt->ipHeader.ip_p;
-    std::cout << protocol << std::endl;
     
     // manage the packet when it is recognized as an AITF packet
     if (protocol == 61) {
@@ -127,17 +126,19 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         // add to the route record of the received AITF packet
         AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].ip = AITFPkt->ipHeader.ip_dst;
         AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].nonce = 1;
-
-        // check shadow table for evidence of flow being present
-        if (false) {
-	       return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
-        }
         
+        // produce the flow to send to the policy module
+        Flow flow = Flow(&AITFPkt->rr.pktFlow, AITFPkt->rr.length);
+
         // provide observed packet flow to host policy module
-        HostPolicyModule
-        AITFPkt->rr.pktFlow;
+        HostPolicyModule policyModule = HostPolicyModule();
+        policyModule.checkHighFlowPolicy(flow);
 
+        // remove the route record shim from the packet
+        newPkt->ipHeader = AITFPkt->ipHeader;
+        newPkt->ipHeader.ip_p = AITFPkt->rr.protocol;
+        newPkt->ipHeader.ip_sum =
+        memcpy(newPkt->payload, AITFPkt->payload, 1500);
     }
-
     return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
 }
