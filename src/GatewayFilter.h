@@ -56,7 +56,7 @@ public:
      * This method is used spawning a thread for carrying out the
      * six responsibilities listed for the GatewayFilter class.
      */
-    void startFilterThread();
+    void startFilterThread(ShadowTable s);
 };
 
 /**
@@ -64,7 +64,7 @@ public:
  * when the startFilterthread() method of the GatewayFilter class is used.
  * @return 0 upon success, 1 upon failure.
  */
-int gatewayFilterMain();
+void* gatewayFilterMain(void* arg);
 
 /**
  * This is a callback function that is used by the netfilter module

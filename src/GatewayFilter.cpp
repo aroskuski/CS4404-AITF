@@ -12,8 +12,12 @@
  * This method is used spawning a thread for carrying out the
  * six responsibilities listed for the GatewayFilter class.
  */
-void GatewayFilter::startFilterThread() {
-    
+void GatewayFilter::startFilterThread(ShadowTable s) {
+	pthread_t gatewayFilterThread;
+	    if (pthread_create(&gatewayFilterThread, NULL, &gatewayFilterMain, (void*) s)) {
+	    	std::cout << "ERROR: pthread_create()" << std::endl;
+	    	exit(1);
+	    }
 }
 
 /**
@@ -21,7 +25,7 @@ void GatewayFilter::startFilterThread() {
  * when the startFilterthread() method of the GatewayFilter class is used.
  * @return 0 upon success, 1 upon failure.
  */
-int gatewayFilterMain() {
+void* gatewayFilterMain(void* arg) {
     
     // declaration of local variables
     int fd;
@@ -29,6 +33,7 @@ int gatewayFilterMain() {
     char packetBuffer[4096];
     struct nfq_handle *handle;
     struct nfq_q_handle *queueHandle;
+    ShadowTable s = (ShadowTable) arg;
     
     // attempt to open a queue connection handle from the netfilter module
     if (!(handle = nfq_open())) {
@@ -49,7 +54,7 @@ int gatewayFilterMain() {
     }
     
     // create the handle for the nfq queue and ensure that it is linked to a callback
-    if (!(queueHandle = nfq_create_queue(handle, 0, &cb, NULL))) {
+    if (!(queueHandle = nfq_create_queue(handle, 0, &cb, (void*) s))) {
         std::cerr << "ERROR: nfq_create_queue()" << std::endl;
         exit(1);
     }
@@ -91,6 +96,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     uint16_t id;
     uint8_t protocol;
     unsigned char* pktData;
+    ShadowTable s = (ShadowTable) cbData;
     
     struct ipPacket* regularPkt;
     struct ipPacket* newPkt;
