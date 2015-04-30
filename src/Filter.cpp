@@ -48,48 +48,48 @@ void Filter::filterMain(bool host) {
 	char packetBuffer[4096];
 
 	// cleanup allocated resources just in case they still exist
-	nfq_close(handle);
-	nfq_destroy_queue(queueHandle);
+	//nfq_close(handle);
+	//nfq_destroy_queue(queueHandle);
 
 	// attempt to open a queue connection handle from the netfilter module
-	if (!(handle = nfq_open())) {
-		std::cerr << "ERROR: nfq_open()" << std::endl;
-		exit(1);
-	}
+	//if (!(handle = nfq_open())) {
+	//	std::cerr << "ERROR: nfq_open()" << std::endl;
+	//	exit(1);
+	//}
 
 	// unbind the handle to prevent any inability to bind
-	if (nfq_unbind_pf(handle, AF_INET < 0)) {
-		std::cerr << "ERROR: nfq_unbind_pf()" << std::endl;
-		exit(1);
-	}
+	//if (nfq_unbind_pf(handle, AF_INET < 0)) {
+	//	std::cerr << "ERROR: nfq_unbind_pf()" << std::endl;
+	//	exit(1);
+	//}
 
 	// bind the handle so that it can process IPv4 packets
-	if (nfq_bind_pf(handle, AF_INET) < 0) {
-		std::cerr << "ERROR: nfq_bind_pf()" << std::endl;
-		exit(1);
-	}
+	//if (nfq_bind_pf(handle, AF_INET) < 0) {
+	//	std::cerr << "ERROR: nfq_bind_pf()" << std::endl;
+	//	exit(1);
+	//}
 
 	// create the handle for the nfq queue and ensure that it is linked to a callback
-	if (!(queueHandle = nfq_create_queue(handle, 0, &callback, (void*) host))) {
-		std::cerr << "ERROR: nfq_create_queue()" << std::endl;
-		exit(1);
-	}
+	//if (!(queueHandle = nfq_create_queue(handle, 0, &callback, (void*) host))) {
+	//	std::cerr << "ERROR: nfq_create_queue()" << std::endl;
+	//	exit(1);
+	//}
 
 	// enable all packet data for every queued packet to be copied and read into user space
-	if (nfq_set_mode(queueHandle, NFQNL_COPY_PACKET, 0xffff) < 0) {
-		std::cerr << "ERROR: packet copy mode" << std::endl;
-		exit(1);
-	}
+	//if (nfq_set_mode(queueHandle, NFQNL_COPY_PACKET, 0xffff) < 0) {
+	//	std::cerr << "ERROR: packet copy mode" << std::endl;
+	//	exit(1);
+	//}
 
 	// create a file descriptor that can be used to read from the queue
-	fd = nfq_fd(handle);
+	//fd = nfq_fd(handle);
 
 	// if we received a pakcet from the queue go and have the callback handle it
-	while (true) {
-		if ((bytes = recv(fd, packetBuffer, sizeof(packetBuffer), 0)) >= 0) {
-			nfq_handle_packet(handle, packetBuffer, bytes);
-		}
-	}
+	//while (true) {
+	//	if ((bytes = recv(fd, packetBuffer, sizeof(packetBuffer), 0)) >= 0) {
+	//		nfq_handle_packet(handle, packetBuffer, bytes);
+	//	}
+	//}
 }
 
 /**
@@ -114,12 +114,12 @@ static int callback(struct nfq_q_handle *qh, struct nfgenmsg *msg, nfq_data *pkt
 	protocol = 0;
 
 	// acquire the ID of the received packet
-	if ((header = nfq_get_msg_packet_hdr(pkt))) {
-		id = ntohl(header->packet_id);
-	}
+	//if ((header = nfq_get_msg_packet_hdr(pkt))) {
+	//	id = ntohl(header->packet_id);
+	//}
 
 	// read the entire packet into memory for manipulation and reading
-	int len = nfq_get_payload(pkt, &pktData);
+	//int len = nfq_get_payload(pkt, &pktData);
 
 	return 0;
 }

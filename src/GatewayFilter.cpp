@@ -135,8 +135,8 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     if (protocol == 143) {
         
         // drop the recieved packet if the route record is malformed
-        if (AITFPkt->routeRecord.position + 1 > AITFPkt->routeRecord.length
-            || AITFPkt->routeRecord.length != 6) {
+        if (AITFPkt->rr.position + 1 > AITFPkt->rr.length
+            || AITFPkt->rr.length != 6) {
             return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
         }
         
