@@ -121,7 +121,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     if (protocol == 61) {
         
         // drop the received packet if the route record is malformed
-        if (AITFPkt->routeRecord.position + 1 > AITFPkt->routeRecord.length) {
+        if (AITFPkt->rr.position + 1 > AITFPkt->rr.length) {
             return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
         }
         
@@ -135,8 +135,8 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         }
         
         // add to the route record of the recieved AITF packet
-        AITFPkt->routeRecord.pktFlow[AITFPkt->routeRecord.position + 1].ip = AITFPkt->ipHeader.ip_dst;
-        AITFPkt->routeRecord.pktFlow[AITFPkt->routeRecord.position + 1].nonce = 1;
+        AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].ip = AITFPkt->ipHeader.ip_dst;
+        AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].nonce = 1;
         
         // check shadow table for evidence of flow being present
         // provide andrew with notification and drop packet
@@ -145,7 +145,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         }
         
         // provide Andrew with the observed packet flow
-        AITFPkt->routeRecord.pktFlow;
+        AITFPkt->rr.pktFlow;
     }
 
     return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);

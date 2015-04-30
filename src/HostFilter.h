@@ -155,6 +155,7 @@ struct AITFHeader {
 struct AITFPacket {
     struct ip ipHeader;
     struct tcp tcpHeader;
+    struct routeRecord rr;
     struct AITFHeader aitfHeader;
     char payload[1500];
 };
