@@ -137,7 +137,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         // remove the route record shim from the packet
         newPkt->ipHeader = AITFPkt->ipHeader;
         newPkt->ipHeader.ip_p = AITFPkt->rr.protocol;
-        newPkt->ipHeader.ip_sum =
+        newPkt->ipHeader.ip_sum = ip_checksum(newPkt->ipHeader, 20);
         memcpy(newPkt->payload, AITFPkt->payload, 1500);
     }
     return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
