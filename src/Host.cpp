@@ -17,7 +17,12 @@ int main(){
 	pthread_mutexattr_init(&mutexattr);
     pthread_mutex_init(&Host::m, &mutexattr);
 
+    sem_init(&Host::sem, 0 , 0);
+    sem_init(&Host::qsem, 0 , 1);
+    sem_init(&Host::lsem, 0, 1);
+
 	pthread_create(&taskThread, NULL, &hostTaskThread, (void *) &host);
+	pthread_create(&taskThread, NULL, &hostBlockCleanupThread, (void *) &host);
 
 	Host::s = -1;
 	while(Host::s < 0){
@@ -53,16 +58,39 @@ void *hostRecvThread(void *arg){
 	char buf[1500];
 	int len = recv(sock, buf, 1500, 0);
 	AITFHeader *h = (AITFHeader *)buf;
+	Flow f = Flow(h->pktFlow, h->flowSize);
+	FlowEntry fe = f.getVictimHost();
+	sem_wait(&Host::lsem);
+	hostblock hb;
+	hb.ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]) + ".";
+	hb.ttl = 30;
+	Host::blocklist.push_back(hb);
+	sem_post(&Host::lsem);
 
+	//add to st
+	return NULL;
+}
 
+void *hostBlockCleanupThread(void *arg){
+	for(;;){
+		sleep(1000);
+		sem_wait(&Host::lsem);
+		for(std::list<hostblock>::iterator it  =  Host::blocklist.begin(); it != Host::blocklist.end(); it++){
+			it->ttl--;
+			if(it->ttl == 0){
+				std::string tempstr = std::string("iptables -D OUTPUT ") + it->ipaddr + std::string(" -j DROP");
+				system(tempstr.c_str());
+			}
+		}
+		sem_post(&Host::lsem);
+	}
 
 	return NULL;
 }
 
 void *hostTaskThread(void *arg){
 	Host &h = *arg;
-	sem_init(&Host::sem, 0 , 0);
-	sem_init(&Host::qsem, 0 , 1);
+
 
 	for(;;){
 		sem_wait(&Host::sem);
@@ -102,9 +130,8 @@ void Host::sendBlockReq(Flow f){
 	connect(sock, res->ai_addr, res->ai_addrlen);
 
 	AITFHeader *h = (AITFHeader *)msg;
-	h->commandFlags = 0;
+	h->commandFlags = FILTERING_REQUEST;
 	h->pktFlow = f.getFlow();
-	//h->nonce = Hash::hash();
 	h->flowSize = f.size();
 	h->payloadSize = 0;
 

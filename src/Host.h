@@ -20,7 +20,10 @@
 #include "Filter.h"
 #include "ShadowTable.h"
 
-
+struct hostblock{
+	std::string ipaddr;
+	int ttl;
+};
 
 class Host {
 public:
@@ -35,9 +38,16 @@ public:
 	static sem_t sem;
 	static sem_t qsem;
 	static std::queue<Flow> q;
+	static std::list<hostblock> blocklist;
+	static sem_t lsem;
 };
+
 
 void *hostTaskThread(void *arg);
 void *hostRecvThread(void *arg);
+void *hostBlockCleanupThread(void *arg);
+
+
+
 
 #endif /* HOST_H_ */
