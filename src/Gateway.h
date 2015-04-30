@@ -35,8 +35,6 @@ private:
 	void remTempBlock();
 	void escalate();
 	bool checkBlacklist();
-
-}
 };
 
 void *recvBlockReq(void * arg);
