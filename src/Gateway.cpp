@@ -86,15 +86,15 @@ void *recvBlockReq(void *arg){
 
 void *gatewayTaskThread(void *arg){
 	Gateway &g = *arg;
-	sem_init(&Host::sem, 0 , 0);
-	sem_init(&Host::qsem, 0 , 1);
+	sem_init(&Gateway::sem, 0 , 0);
+	sem_init(&Gateway::qsem, 0 , 1);
 
 	for(;;){
-		sem_wait(&Host::sem);
-		sem_wait(&Host::qsem);
-		Flow f = Host::q.front();
-		Host::q.pop();
-		sem_post(&Host::qsem);
+		sem_wait(&Gateway::sem);
+		sem_wait(&Gateway::qsem);
+		Flow f = Gateway::q.front();
+		Gateway::q.pop();
+		sem_post(&Gateway::qsem);
 		g.sendBlockReq(f);
 	}
 
@@ -115,4 +115,8 @@ void Gateway::escalate(){
 
 bool Gateway::checkBlacklist(){
 	return false;
+}
+
+void sendMessage(int id){
+
 }

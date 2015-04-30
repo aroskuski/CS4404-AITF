@@ -17,18 +17,17 @@
 #include "ShadowTable.h"
 #include "Packet.h"
 
-struct message{
-	int type;
-	Flow f;
-};
 
 class Gateway {
 public:
 	Gateway();
 	ShadowTable st;
-	void sendMessage(message m);
+	void sendMessage(int id);
 	virtual ~Gateway();
 	static int s;
+	static sem_t sem;
+	static sem_t qsem;
+	static std::queue<Flow> q;
 private:
 	void sendBlockReq(Flow f);
 	void recvBlockReq();
@@ -37,6 +36,7 @@ private:
 	void escalate();
 	bool checkBlacklist();
 
+}
 };
 
 void *recvBlockReq(void * arg);
