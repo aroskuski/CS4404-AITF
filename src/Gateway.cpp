@@ -92,10 +92,13 @@ void *gatewayTaskThread(void *arg){
 	for(;;){
 		sem_wait(&Gateway::sem);
 		sem_wait(&Gateway::qsem);
-		Flow f = Gateway::q.front();
+		int id = Gateway::q.front();
 		Gateway::q.pop();
 		sem_post(&Gateway::qsem);
-		g.sendBlockReq(f);
+		g.escalate(id);
+		sem_wait(&Gateway::qsem);
+		Gateway::q.pop();
+		sem_post(&Gateway::qsem);
 	}
 
 	return NULL;
@@ -109,7 +112,7 @@ void Gateway::remTempBlock(){
 
 }
 
-void Gateway::escalate(){
+void Gateway::escalate(int id){
 
 }
 
@@ -117,6 +120,9 @@ bool Gateway::checkBlacklist(){
 	return false;
 }
 
-void sendMessage(int id){
-
+void Gateway::sendMessage(int id){
+	sem_wait(&qsem);
+	q.push(id);
+	sem_post(&qsem);
+	sem_post(&sem);
 }

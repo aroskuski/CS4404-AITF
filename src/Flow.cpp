@@ -98,3 +98,6 @@ FlowEntry Flow::getVictimGateway() {
 	return result;
 }
 
+int Flow::size(){
+	return flow.size();
+}

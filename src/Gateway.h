@@ -27,13 +27,13 @@ public:
 	static int s;
 	static sem_t sem;
 	static sem_t qsem;
-	static std::queue<Flow> q;
+	static std::queue<int> q;
 private:
 	void sendBlockReq(Flow f);
 	void recvBlockReq();
 	void tempBlock();
 	void remTempBlock();
-	void escalate();
+	void escalate(int id);
 	bool checkBlacklist();
 };
 

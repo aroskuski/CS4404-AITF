@@ -33,6 +33,7 @@ public:
 	FlowEntry getAttackHost();
 	FlowEntry getAttackGateway();
 	FlowEntry getVictimGateway();
+	int size();
 	virtual ~Flow();
 	flow* getFlow();
 	std::vector<FlowEntry> flow;

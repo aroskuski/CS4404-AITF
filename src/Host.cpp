@@ -68,9 +68,11 @@ void *hostTaskThread(void *arg){
 		sem_wait(&Host::sem);
 		sem_wait(&Host::qsem);
 		Flow f = Host::q.front();
-		Host::q.pop();
 		sem_post(&Host::qsem);
 		h.sendBlockReq(f);
+		sem_wait(&Host::qsem);
+		Host::q.pop();
+		sem_post(&Host::qsem);
 	}
 
 	return NULL;
@@ -86,7 +88,7 @@ Host::~Host() {
 }
 
 void Host::sendBlockReq(Flow f){
-	FlowEntry fe = f.getVicimGateway();
+	FlowEntry fe = f.getVictimGateway();
 	std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]) + ".";
 	char msg[1500];
 	int msglen = 1500;
@@ -98,6 +100,13 @@ void Host::sendBlockReq(Flow f){
 	getaddrinfo(ipaddr.c_str(), "1025", &hints, &res);
 	int sock = socket(AF_INET, SOCK_STREAM, 0);
 	connect(sock, res->ai_addr, res->ai_addrlen);
+
+	AITFHeader *h = (AITFHeader *)msg;
+	h->commandFlags = 0;
+	h->pktFlow = f.getFlow();
+	//h->nonce = Hash::hash();
+	h->flowSize = f.size();
+	h->payloadSize = 0;
 
 	int len = send(sock, msg, msglen, 0);
 
