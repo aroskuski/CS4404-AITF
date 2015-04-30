@@ -5,3 +5,7 @@
 /Host Release/
 /Gateway Release/
 /bin/
+*.o
+*hostAITF
+*gatewayAITF
+*~

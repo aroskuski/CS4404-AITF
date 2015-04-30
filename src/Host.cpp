@@ -9,7 +9,7 @@
 
 int main(){
 	Host host = Host();
-	HostFilter filter = HostFilter(host.st);
+	HostFilter filter = HostFilter();
 	//filter.startFilterThread(true);
 	pthread_t taskThread;
 	pthread_t blockThread;
@@ -63,7 +63,9 @@ void *hostRecvThread(void *arg){
 	FlowEntry fe = f.getVictimHost();
 	sem_wait(&Host::lsem);
 	hostblock hb;
-	hb.ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]);
+	char ipaddrstring[20];
+	sprintf(ipaddrstring, "%d.%d.%d.%d",fe.ipaddr[0],fe.ipaddr[1],fe.ipaddr[2],fe.ipaddr[3]);
+	hb.ipaddr = std::string(ipaddrstring);
 	hb.ttl = 30;
 	std::string tempstr = std::string("iptables -A OUTPUT ") + hb.ipaddr + std::string(" -j DROP");
 	system(tempstr.c_str());
@@ -92,7 +94,7 @@ void *hostBlockCleanupThread(void *arg){
 }
 
 void *hostTaskThread(void *arg){
-	Host &h = *arg;
+	Host *h =(Host *) arg;
 
 
 	for(;;){
@@ -100,7 +102,7 @@ void *hostTaskThread(void *arg){
 		sem_wait(&Host::qsem);
 		Flow f = Host::q.front();
 		sem_post(&Host::qsem);
-		h.sendBlockReq(f);
+		h->sendBlockReq(f);
 		sem_wait(&Host::qsem);
 		Host::q.pop();
 		sem_post(&Host::qsem);
@@ -120,7 +122,9 @@ Host::~Host() {
 
 void Host::sendBlockReq(Flow f){
 	FlowEntry fe = f.getVictimGateway();
-	std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]);
+	char ipaddrstring[20];
+	sprintf(ipaddrstring, "%d.%d.%d.%d",fe.ipaddr[0],fe.ipaddr[1],fe.ipaddr[2],fe.ipaddr[3]);
+	std::string ipaddr = std::string(ipaddrstring);
 	char msg[1500];
 	int msglen = sizeof(AITFHeader);
 
@@ -134,7 +138,10 @@ void Host::sendBlockReq(Flow f){
 
 	AITFHeader *h = (AITFHeader *)msg;
 	h->commandFlags = FILTERING_REQUEST;
-	h->pktFlow = f.getFlow();
+	for(unsigned int i = 0; i < f.size(); i++){
+		h->pktFlow[i] = f.getFlow()[i];
+	}
+	//h->pktFlow = f.getFlow();
 	h->flowSize = f.size();
 	h->payloadSize = 0;
 

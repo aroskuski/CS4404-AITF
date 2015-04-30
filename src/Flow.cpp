@@ -19,10 +19,22 @@ struct flow {
  */
 Flow::Flow(struct flow* f, int flowSize) {
 	FlowEntry newFlowEntry;
-	unsigned char ipAddressBytes[4];
+	//unsigned char ipAddressBytes[4];
+
 	for (int i = 0; i < flowSize; i++) {
-		ipAddressBytes[0] = (unsigned char*) ((&f[i].ip >> 24) & 0xFF);
-		newFlowEntry.nonce = (char*) f[i].nonce;
+		char ipaddrcstring[20];
+		inet_ntop(AF_INET, &f[i].ip, ipaddrcstring, 20);
+		char *tok = strtok(ipaddrcstring, ".");
+		newFlowEntry.ipaddr[0] = atoi(tok);
+		tok = strtok(NULL, ".");
+		newFlowEntry.ipaddr[1] = atoi(tok);
+		tok = strtok(NULL, ".");
+		newFlowEntry.ipaddr[2] = atoi(tok);
+		tok = strtok(NULL, ".");
+		newFlowEntry.ipaddr[3] = atoi(tok);
+		//ipAddressBytes[0] = (unsigned char*) ((&f[i].ip >> 24) & 0xFF);
+		newFlowEntry.nonce = f[i].nonce;
+
 		flowlist.push_back(newFlowEntry);
 	}
 }
@@ -33,16 +45,22 @@ Flow::~Flow() {
 
 flow* Flow::getFlow() {
 	struct flow* result;
-	for (int i = 0; i < flowlist.size(); i++) {
-		result[i] = (uint32_t) flowlist[i].ipaddr;
-		result[i] = (uint64_t) flowlist[i].nonce;
+	for (unsigned int i = 0; i < flowlist.size(); i++) {
+		char ipaddrstring[20];
+		sprintf(ipaddrstring, "%d.%d.%d.%d",flowlist[i].ipaddr[0],flowlist[i].ipaddr[1],flowlist[i].ipaddr[2],flowlist[i].ipaddr[3]);
+		inet_pton(AF_INET, ipaddrstring, (void *) &result[i].ip);
+		//result[i].ip = (in_addr) (flowlist[i].ipaddr[0] << 24) + (flowlist[i].ipaddr[1] << 16) + (flowlist[i].ipaddr[2] << 8) + flowlist[i].ipaddr[3];
+		result[i].nonce = (uint64_t) flowlist[i].nonce;
 	}
 	return result;
 }
 
 bool Flow::operator==(const Flow& f) {
 	bool isEqual = true;
-	for (int i = 0; i < f.flowlist.size(); i++) {
+	if(flowlist.size() != f.flowlist.size()){
+			return false;
+	}
+	for (unsigned int i = 0; i < f.flowlist.size(); i++) {
 		if (f.flowlist[i].ipaddr != flowlist[i].ipaddr) {
 			isEqual = false;
 		}
@@ -55,11 +73,14 @@ bool Flow::operator==(const Flow& f) {
 
 bool Flow::operator!=(const Flow& f) {
 	bool isNotEqual = true;
-	for (int i = 0; i < f.flowlist.size(); i++) {
+	if(flowlist.size() != f.flowlist.size()){
+		return true;
+	}
+	for (unsigned int i = 0; i < f.flowlist.size(); i++) {
 		if (f.flowlist[i].ipaddr == flowlist[i].ipaddr) {
 			isNotEqual = false;
 		}
-		if (f.flowlist[i].nonce == flowlist[i].ipaddr) {
+		if (f.flowlist[i].nonce == flowlist[i].nonce) {
 			isNotEqual = false;
 		}
 	}

@@ -16,7 +16,7 @@ HostPolicyModule::~HostPolicyModule() {
 	// TODO Auto-generated destructor stub
 }
 
-virtual bool HostPolicyModule::checkHighFlowPolicy(Flow f){
+bool HostPolicyModule::checkHighFlowPolicy(Flow f){
 
 	return false;
 }

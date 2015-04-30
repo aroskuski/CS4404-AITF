@@ -7,9 +7,13 @@
 
 #ifndef FLOW_H_
 #define FLOW_H_
-
+#include <stdlib.h>
 #include <vector>
 #include <netinet/in.h>
+#include <arpa/inet.h>
+#include <cstdio>
+#include <string>
+#include <cstring>
 /**
  * C structure for a packet flow
  * - Contains the ip address of a visited machine
@@ -19,7 +23,7 @@
 
 struct FlowEntry {
 	unsigned char ipaddr[4];
-	unsigned char nonce[8];
+	uint64_t nonce;
 };
 
 class Flow {
