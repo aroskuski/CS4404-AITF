@@ -17,27 +17,33 @@
 #include "ShadowTable.h"
 #include "Packet.h"
 
+struct gatewayblock{
+	std::string ipaddr;
+	int ttl;
+};
 
 class Gateway {
 public:
 	Gateway();
 	ShadowTable st;
-	void sendMessage(int id);
+	void sendMessage(Flow f);
 	virtual ~Gateway();
 	static int s;
 	static sem_t sem;
 	static sem_t qsem;
-	static std::queue<int> q;
-private:
+	static std::queue<Flow> q;
+	static std::list<gatewayblock> blocklist;
+	static sem_t lsem;
 	void sendBlockReq(Flow f);
 	void recvBlockReq();
 	void tempBlock();
 	void remTempBlock();
-	void escalate(int id);
+	void escalate(Flow f);
 	bool checkBlacklist();
 };
 
 void *recvBlockReq(void * arg);
 void *gatewayTaskThread(void *arg);
+void *gatewayBlockCleanupThread(void *arg);
 
 #endif /* GATEWAY_H_ */

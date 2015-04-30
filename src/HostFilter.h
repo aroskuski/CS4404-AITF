@@ -23,6 +23,7 @@
 #include <net/if.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include "Packet.h"
 
 
 #define FILTERING_REQUEST 1
@@ -113,16 +114,6 @@ struct ipPacket {
 };
 
 /**
- * C structure for a packet flow
- * - Contains the ip address of a visited machine
- * - Contains the nonce for that visited machine
- */
-struct flow {
-    in_addr ip;
-    uint64_t nonce;
-};
-
-/**
  * C structure for a route record
  * - Contains a packet flow for six flow entries
  * - Contains the current position for adding another flow entry
@@ -132,17 +123,6 @@ struct routeRecord {
     struct flow pktFlow[6];
     uint16_t position;
     uint16_t length;
-};
-
-/**
- * C structure for the AITF application layer protocol header
- * -
- */
-struct AITFHeader {
-    uint8_t commandFlags;
-    struct flow pktFlow[6];
-    uint64_t nonce;
-    uint16_t payloadSize;
 };
 
 /**

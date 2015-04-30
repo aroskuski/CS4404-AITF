@@ -9,9 +9,10 @@
 
 int main(){
 	Host host = Host();
-	Filter filter = Filter(host.st);
+	HostFilter filter = HostFilter(host.st);
 	//filter.startFilterThread(true);
 	pthread_t taskThread;
+	pthread_t blockThread;
 
 	pthread_mutexattr_t mutexattr;
 	pthread_mutexattr_init(&mutexattr);
@@ -22,7 +23,7 @@ int main(){
     sem_init(&Host::lsem, 0, 1);
 
 	pthread_create(&taskThread, NULL, &hostTaskThread, (void *) &host);
-	pthread_create(&taskThread, NULL, &hostBlockCleanupThread, (void *) &host);
+	pthread_create(&blockThread, NULL, &hostBlockCleanupThread, (void *) &host);
 
 	Host::s = -1;
 	while(Host::s < 0){

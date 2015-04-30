@@ -15,6 +15,16 @@ int main() {
 	Filter filter = Filter(gateway.st);
 	//filter.startFilterThread(false);
 
+	pthread_t taskThread;
+	pthread_t blockThread;
+
+	sem_init(&Host::sem, 0 , 0);
+	sem_init(&Host::qsem, 0 , 1);
+	sem_init(&Host::lsem, 0, 1);
+
+	pthread_create(&taskThread, NULL, &gatewayTaskThread, (void *) &gateway);
+	pthread_create(&blockThread, NULL, &gatewayBlockCleanupThread, (void *) &gateway);
+
 	int s = -1;
 	while(s < 0){
 		s = socket(AF_INET, SOCK_STREAM, 0);
@@ -84,6 +94,23 @@ void *recvBlockReq(void *arg){
 	return NULL;
 }
 
+void *gatewayBlockCleanupThread(void *arg){
+	for(;;){
+		sleep(1000);
+		sem_wait(&Gateway::lsem);
+		for(std::list<hostblock>::iterator it  =  Gateway::blocklist.begin(); it != Gateway::blocklist.end(); it++){
+			it->ttl--;
+			if(it->ttl == 0){
+				std::string tempstr = std::string("iptables -D OUTPUT ") + it->ipaddr + std::string(" -j DROP");
+				system(tempstr.c_str());
+			}
+		}
+		sem_post(&Gateway::lsem);
+	}
+
+	return NULL;
+}
+
 void *gatewayTaskThread(void *arg){
 	Gateway &g = *arg;
 	sem_init(&Gateway::sem, 0 , 0);
@@ -92,10 +119,10 @@ void *gatewayTaskThread(void *arg){
 	for(;;){
 		sem_wait(&Gateway::sem);
 		sem_wait(&Gateway::qsem);
-		int id = Gateway::q.front();
+		Flow f = Gateway::q.front();
 		Gateway::q.pop();
 		sem_post(&Gateway::qsem);
-		g.escalate(id);
+		g.escalate(f);
 		sem_wait(&Gateway::qsem);
 		Gateway::q.pop();
 		sem_post(&Gateway::qsem);
@@ -112,7 +139,7 @@ void Gateway::remTempBlock(){
 
 }
 
-void Gateway::escalate(int id){
+void Gateway::escalate(Flow f){
 
 }
 
@@ -120,9 +147,9 @@ bool Gateway::checkBlacklist(){
 	return false;
 }
 
-void Gateway::sendMessage(int id){
+void Gateway::sendMessage(Flow f){
 	sem_wait(&qsem);
-	q.push(id);
+	q.push(f);
 	sem_post(&qsem);
 	sem_post(&sem);
 }

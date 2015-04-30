@@ -17,7 +17,7 @@
 #include <semaphore.h>
 #include <queue>
 #include "Flow.h"
-#include "Filter.h"
+#include "HostFilter.h"
 #include "ShadowTable.h"
 
 struct hostblock{
