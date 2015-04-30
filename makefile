@@ -8,10 +8,10 @@
 all: hostAITF gatewayAITF
 
 hostAITF: Host.o HostPolicyModule.o HostFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o
-	g++ Host.o HostPolicyModule.o HostFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o -o hostAITF -lnetfilter_queue -lpthread -lssl -lcrypto
+	g++ Host.o HostPolicyModule.o HostFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o -o hostAITF -lnetfilter_queue -lpthread
 
 gatewayAITF: Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o
-	g++ Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o -o gatewayAITF -lpthread -lssl -lcrypto -lnetfilter_queue
+	g++ Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o -o gatewayAITF -lnetfilter_queue
 
 # All host object files
 Host.o: Host.cpp Host.h

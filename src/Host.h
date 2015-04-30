@@ -34,7 +34,7 @@ public:
 	void sendBlockReq(Flow f);
 	void honorBlockReq(std::string dest_addr);
 	static int s;
-	static pthread_mutex_t m;
+	//static pthread_mutex_t m;
 	static sem_t sem;
 	static sem_t qsem;
 	static std::queue<Flow> q;
@@ -46,8 +46,6 @@ public:
 void *hostTaskThread(void *arg);
 void *hostRecvThread(void *arg);
 void *hostBlockCleanupThread(void *arg);
-
-
 
 
 #endif /* HOST_H_ */

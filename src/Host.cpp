@@ -7,6 +7,13 @@
 
 #include "Host.h"
 
+sem_t Host::sem;
+sem_t Host::qsem;
+std::queue<Flow> Host::q = std::queue<Flow>();
+std::list<hostblock> Host::blocklist = std::list<hostblock>();
+sem_t Host::lsem;
+int Host::s;
+
 int main(){
 	Host host = Host();
 	HostFilter filter = HostFilter();
@@ -14,9 +21,9 @@ int main(){
 	pthread_t taskThread;
 	pthread_t blockThread;
 
-	pthread_mutexattr_t mutexattr;
-	pthread_mutexattr_init(&mutexattr);
-    pthread_mutex_init(&Host::m, &mutexattr);
+	//pthread_mutexattr_t mutexattr;
+	//pthread_mutexattr_init(&mutexattr);
+    //pthread_mutex_init(&Host::m, &mutexattr);
 
     sem_init(&Host::sem, 0 , 0);
     sem_init(&Host::qsem, 0 , 1);

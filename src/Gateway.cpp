@@ -6,21 +6,28 @@
 // Description : Hello World in C++, Ansi-style
 //============================================================================
 
-#include <iostream>
+//#include <iostream>
 #include "Gateway.h"
-using namespace std;
+//using namespace std;
+
+int Gateway::s;
+sem_t Gateway::sem;
+sem_t Gateway::qsem;
+std::queue<Flow> Gateway::q = std::queue<Flow>();
+std::list<gatewayblock> Gateway::blocklist = std::list<gatewayblock>();
+sem_t Gateway::lsem;
 
 int main() {
 	Gateway gateway = Gateway();
-	Filter filter = Filter(gateway.st);
+	//GatewayFilter filter = GatewayFilter();
 	//filter.startFilterThread(false);
 
 	pthread_t taskThread;
 	pthread_t blockThread;
 
-	sem_init(&Host::sem, 0 , 0);
-	sem_init(&Host::qsem, 0 , 1);
-	sem_init(&Host::lsem, 0, 1);
+	sem_init(&Gateway::sem, 0 , 0);
+	sem_init(&Gateway::qsem, 0 , 1);
+	sem_init(&Gateway::lsem, 0, 1);
 
 	pthread_create(&taskThread, NULL, &gatewayTaskThread, (void *) &gateway);
 	pthread_create(&blockThread, NULL, &gatewayBlockCleanupThread, (void *) &gateway);
@@ -234,7 +241,51 @@ void Gateway::remTempBlock(std::string ipaddr){
 }
 
 void Gateway::escalate(Flow f){
+	ShadowEntry *se = st.getshadowEntry(f);
+	se->esccount++;
+	if(f.getVictimGateway().ipaddr == f.getIndex(se->esccount + 1).ipaddr){//+1 to skip attack host
+		FlowEntry fe = f.getAttackHost();
+		sem_wait(&Gateway::lsem);
+		gatewayblock gb;
+		char ipaddrstring[20];
+		sprintf(ipaddrstring, "%d.%d.%d.%d",fe.ipaddr[0],fe.ipaddr[1],fe.ipaddr[2],fe.ipaddr[3]);
+		std::string ipaddr = std::string(ipaddrstring);
+		gb.ipaddr = ipaddr;
+		gb.ttl = 30;
+		std::string tempstr = std::string("iptables -A OUTPUT ") + gb.ipaddr + std::string(" -j DROP");
+		system(tempstr.c_str());
+		Gateway::blocklist.push_back(gb);
+		sem_post(&Gateway::lsem);
+	} else {
+		FlowEntry fe = f.getIndex(se->esccount + 1);
+		char ipaddrstring[20];
+		sprintf(ipaddrstring, "%d.%d.%d.%d",fe.ipaddr[0],fe.ipaddr[1],fe.ipaddr[2],fe.ipaddr[3]);
+		std::string ipaddr = std::string(ipaddrstring);
+		int sock = socket(AF_INET, SOCK_STREAM, 0);
+		addrinfo hints, *res;
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_family = AF_INET;
+		hints.ai_socktype = SOCK_STREAM;
+		getaddrinfo(ipaddr.c_str(), "1025", &hints, &res);
+		connect(sock, res->ai_addr, res->ai_addrlen);
 
+		char msg[1500];
+		AITFHeader *h = (AITFHeader *) msg;
+		h->commandFlags = 3;
+		h->flowSize = f.size();
+		for(unsigned int i = 0; i < f.size(); i++){
+			h->pktFlow[i] = f.getFlow()[i];
+		}
+		//h->pktFlow = f.getFlow();
+		h->payloadSize = se->esccount;
+
+		send(sock, msg, sizeof(AITFHeader), 0);
+		char buf2[1500];
+		recv(sock, buf2, sizeof(AITFHeader), 0);
+		send(sock, buf2, sizeof(AITFHeader), 0);
+
+		shutdown(sock, 2);
+	}
 }
 
 bool Gateway::checkBlacklist(){

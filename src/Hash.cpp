@@ -17,7 +17,8 @@ Hash::~Hash() {
 	// TODO Auto-generated destructor stub
 }
 
-void Hash::hash(unsigned char *in, unsigned char *out){
-	HMAC(EVP_md5(), 0, 0, in,0, out, NULL);
+void Hash::hash(unsigned char *in, int insize, unsigned char *out){
+	const char key[33] = "EVERYONE HAPPY SIMPLE CONNECTION";
+	HMAC(EVP_md5(),(void *) key, 32, in, insize, out, NULL);
 
 }

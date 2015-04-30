@@ -118,6 +118,9 @@ FlowEntry Flow::getVictimHost() {
 	}
 	return result;
 }
+FlowEntry Flow::getIndex(int i){
+	return flowlist[i];
+}
 
 int Flow::size(){
 	return flowlist.size();

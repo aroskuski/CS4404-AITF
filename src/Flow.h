@@ -35,6 +35,7 @@ public:
 	FlowEntry getAttackGateway();
 	FlowEntry getVictimGateway();
 	FlowEntry getVictimHost();
+	FlowEntry getIndex(int i);
 	int size();
 	virtual ~Flow();
 	flow* getFlow();

@@ -10,11 +10,17 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
+
 #include <netdb.h>
+#include <string>
 #include <cstring>
+#include <pthread.h>
+#include <semaphore.h>
+#include <list>
+#include <queue>
+#include <arpa/inet.h>
 #include "Flow.h"
-#include "Filter.h"
+#include "GatewayFilter.h"
 #include "ShadowTable.h"
 #include "Packet.h"
 
@@ -36,7 +42,7 @@ public:
 	static std::list<gatewayblock> blocklist;
 	static sem_t lsem;
 	void sendBlockReq(Flow f);
-	void recvBlockReq();
+	//void recvBlockReq();
 	void tempBlock(std::string ipaddr);
 	void remTempBlock(std::string ipaddr);
 	void escalate(Flow f);
@@ -46,5 +52,9 @@ public:
 void *recvBlockReq(void * arg);
 void *gatewayTaskThread(void *arg);
 void *gatewayBlockCleanupThread(void *arg);
+
+bool operator==(const gatewayblock& lhs, const gatewayblock& rhs){
+	return lhs.ipaddr == rhs.ipaddr && lhs.ttl == rhs.ttl;
+}
 
 #endif /* GATEWAY_H_ */

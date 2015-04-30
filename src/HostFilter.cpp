@@ -8,6 +8,14 @@
 
 #include "HostFilter.h"
 
+HostFilter::HostFilter(){
+
+}
+
+HostFilter::~HostFilter(){
+
+}
+
 /**
  * This method is used spawning a thread for carrying out the
  * three responsibilities listed for the HostFilter class.
@@ -128,7 +136,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].nonce = 1;
         
         // produce the flow to send to the policy module
-        Flow flow = Flow(&AITFPkt->rr.pktFlow, AITFPkt->rr.length);
+        Flow flow = Flow(AITFPkt->rr.pktFlow, AITFPkt->rr.length);
 
         // provide observed packet flow to host policy module
         HostPolicyModule policyModule = HostPolicyModule();
@@ -137,7 +145,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         // remove the route record shim from the packet
         newPkt->ipHeader = AITFPkt->ipHeader;
         newPkt->ipHeader.ip_p = AITFPkt->rr.protocol;
-        newPkt->ipHeader.ip_sum =
+        //newPkt->ipHeader.ip_sum =
         memcpy(newPkt->payload, AITFPkt->payload, 1500);
     }
     return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);

@@ -13,10 +13,8 @@
 class Hash {
 public:
 	Hash();
-	static void hash(unsigned char *in, int insize, unsigned char *out, int *outsize);
+	static void hash(unsigned char *in, int insize, unsigned char *out);
 	virtual ~Hash();
-private:
-	//unsigned char
 };
 
 #endif /* HASH_H_ */

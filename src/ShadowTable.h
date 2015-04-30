@@ -9,21 +9,25 @@
 #define SHADOWTABLE_H_
 #include <sys/time.h>
 #include <list>
+#include "Flow.h"
 
 struct ShadowEntry {
 	unsigned char ipaddr[4];
 	bool active;
 	int ttl;
 	timespec timeAdded;
+	int esccount;//starts at 0
 };
 
 class ShadowTable {
 public:
 	ShadowTable();
 	virtual ~ShadowTable();
-	void addHost(unsigned char h[4]);
-	void remHost(unsigned char h[4]);
-	bool containsHost(unsigned char h[4]);
+	void addFlow(Flow f);
+	void remFlow(Flow f);
+	bool containsHost(unsigned char *h);
+	bool containsFlow(Flow f);
+	ShadowEntry *getshadowEntry(Flow f);
 	void clean();
 private:
 	std::list<ShadowEntry> hostList;

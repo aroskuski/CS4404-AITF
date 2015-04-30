@@ -49,7 +49,7 @@ int gatewayFilterMain() {
     }
     
     // create the handle for the nfq queue and ensure that it is linked to a callback
-    if (!(queueHAndle = nfq_create_queue(handle, 0, &cb, NULL))) {
+    if (!(queueHandle = nfq_create_queue(handle, 0, &cb, NULL))) {
         std::cerr << "ERROR: nfq_create_queue()" << std::endl;
         exit(1);
     }
@@ -128,7 +128,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         // AITFPkt->routeRecord.pktFlow[AITFPkt->routeRecord.position + 1].ip = AITFPkt->ipHeader.ip_dst;
         // AITFPkt->routeRecord.pktFlow[AITFPkt->routeRecord.position + 1].nonce = 1;
         
-        return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct RRPacket), RRPkt);
+        return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct RRPacket), (unsigned char*)RRPkt);
     }
     
     // manage the packet when it is recognized as an AITF control packet w/ RR
@@ -150,9 +150,9 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         // if the packet is headed to a legacy host drop the RR
         if (false) {
             newPkt->ipHeader = AITFPkt->ipHeader;
-            newPkt->ipHeader.ip_p = 
+            //newPkt->ipHeader.ip_p =
             memcpy(newPkt->payload, AITFPkt->payload, 1500);
-            return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct ipPacket), newPkt);
+            return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct ipPacket), (unsigned char *)newPkt);
         }
     }
 }
