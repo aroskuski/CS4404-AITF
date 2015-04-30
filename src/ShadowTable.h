@@ -9,6 +9,7 @@
 #define SHADOWTABLE_H_
 #include <sys/time.h>
 #include <list>
+#include <semaphore.h>
 #include "Flow.h"
 
 struct ShadowEntry {
@@ -17,6 +18,7 @@ struct ShadowEntry {
 	int ttl;
 	timespec timeAdded;
 	int esccount;//starts at 0
+	Flow f;
 };
 
 class ShadowTable {
@@ -31,6 +33,10 @@ public:
 	void clean();
 private:
 	std::list<ShadowEntry> hostList;
+	sem_t sem;
 };
+
+bool operator==(const ShadowEntry& lhs, const ShadowEntry& rhs);
+
 
 #endif /* SHADOWTABLE_H_ */

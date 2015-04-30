@@ -13,7 +13,7 @@
 class Hash {
 public:
 	Hash();
-	static void hash(unsigned char *in, int insize, unsigned char *out);
+	static unsigned char *hash(unsigned char *in, int insize, unsigned int *outlen);
 	virtual ~Hash();
 };
 

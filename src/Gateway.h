@@ -23,6 +23,7 @@
 #include "GatewayFilter.h"
 #include "ShadowTable.h"
 #include "Packet.h"
+#include "Hash.h"
 
 struct gatewayblock{
 	std::string ipaddr;
@@ -53,8 +54,6 @@ void *recvBlockReq(void * arg);
 void *gatewayTaskThread(void *arg);
 void *gatewayBlockCleanupThread(void *arg);
 
-bool operator==(const gatewayblock& lhs, const gatewayblock& rhs){
-	return lhs.ipaddr == rhs.ipaddr && lhs.ttl == rhs.ttl;
-}
+bool operator==(const gatewayblock& lhs, const gatewayblock& rhs);
 
 #endif /* GATEWAY_H_ */

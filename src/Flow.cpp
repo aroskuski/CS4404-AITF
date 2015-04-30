@@ -12,12 +12,17 @@ struct flow {
     uint64_t nonce;
 };
 
+Flow::Flow(){
+	flowlist = std::vector<FlowEntry>();
+}
+
 /**
  * Constructor for the Flow class.
  * @param f a packet flow received from a packet
  * @param flowSize the size of the packet flow
  */
 Flow::Flow(struct flow* f, int flowSize) {
+	flowlist = std::vector<FlowEntry>();
 	FlowEntry newFlowEntry;
 	//unsigned char ipAddressBytes[4];
 
@@ -55,7 +60,7 @@ flow* Flow::getFlow() {
 	return result;
 }
 
-bool Flow::operator==(const Flow& f) {
+bool Flow::operator==(const Flow& f) const{
 	bool isEqual = true;
 	if(flowlist.size() != f.flowlist.size()){
 			return false;
@@ -71,7 +76,7 @@ bool Flow::operator==(const Flow& f) {
 	return isEqual;
 }
 
-bool Flow::operator!=(const Flow& f) {
+bool Flow::operator!=(const Flow& f) const{
 	bool isNotEqual = true;
 	if(flowlist.size() != f.flowlist.size()){
 		return true;

@@ -17,6 +17,10 @@ std::queue<Flow> Gateway::q = std::queue<Flow>();
 std::list<gatewayblock> Gateway::blocklist = std::list<gatewayblock>();
 sem_t Gateway::lsem;
 
+bool operator==(const gatewayblock& lhs, const gatewayblock& rhs){
+	return lhs.ipaddr[0] == rhs.ipaddr[0] && lhs.ipaddr[1] == rhs.ipaddr[1] && lhs.ipaddr[2] == rhs.ipaddr[2] && lhs.ipaddr[3] == rhs.ipaddr[3] && lhs.ttl == rhs.ttl;
+}
+
 int main() {
 	Gateway gateway = Gateway();
 	//GatewayFilter filter = GatewayFilter();
@@ -132,8 +136,13 @@ void *recvBlockReq(void *arg){
 		char ipaddrstring[20];
 		sprintf(ipaddrstring, "%d.%d.%d.%d",fe.ipaddr[0],fe.ipaddr[1],fe.ipaddr[2],fe.ipaddr[3]);
 		std::string ipaddr = std::string(ipaddrstring);
+		unsigned int hashlen;
+		unsigned char *hash = Hash::hash((unsigned char *)buf, 1500, &hashlen);
 		unsigned long long nonce = 0;
-		h->nonce = 0;
+		for (unsigned int i = 0; i < 8 && i < hashlen; i++){
+			nonce += hash[i] << (i*8);
+		}
+		h->nonce = nonce;
 		send(sock, buf, sizeof(AITFHeader), 0);
 		g->tempBlock(ipaddr);
 		char buf2[1500];
@@ -158,7 +167,12 @@ void *recvBlockReq(void *arg){
 		inet_ntop(AF_INET, &h->pktFlow[h->payloadSize], ipaddrcstring, 20);
 		std::string ipaddr = std::string(ipaddrcstring);
 		g->tempBlock(ipaddr);
+		unsigned int hashlen;
+		unsigned char *hash = Hash::hash((unsigned char *)buf, 1500, &hashlen);
 		unsigned long long nonce = 0;
+		for (unsigned int i = 0; i < 8 && i < hashlen; i++){
+			nonce += hash[i] << (i*8);
+		}
 		h->nonce = nonce;
 		send(sock, buf, sizeof(AITFHeader), 0);
 		char buf2[1500];

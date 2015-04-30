@@ -28,9 +28,10 @@ struct FlowEntry {
 
 class Flow {
 public:
+	Flow();
 	Flow(struct flow* f, int flowSize);
-	bool operator==(const Flow& f);
-	bool operator!=(const Flow& f);
+	bool operator==(const Flow& f) const;
+	bool operator!=(const Flow& f) const;
 	FlowEntry getAttackHost();
 	FlowEntry getAttackGateway();
 	FlowEntry getVictimGateway();
