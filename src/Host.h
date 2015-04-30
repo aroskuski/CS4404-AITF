@@ -18,6 +18,7 @@
 #include <queue>
 #include "Flow.h"
 #include "HostFilter.h"
+#include "HostFilter.h"
 #include "ShadowTable.h"
 
 struct hostblock{
