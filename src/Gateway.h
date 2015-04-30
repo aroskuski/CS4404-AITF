@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <cstring>
 #include "Flow.h"
@@ -36,8 +37,8 @@ public:
 	static sem_t lsem;
 	void sendBlockReq(Flow f);
 	void recvBlockReq();
-	void tempBlock();
-	void remTempBlock();
+	void tempBlock(std::string ipaddr);
+	void remTempBlock(std::string ipaddr);
 	void escalate(Flow f);
 	bool checkBlacklist();
 };

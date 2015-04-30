@@ -122,7 +122,7 @@ void Host::sendBlockReq(Flow f){
 	FlowEntry fe = f.getVictimGateway();
 	std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]);
 	char msg[1500];
-	int msglen = 1500;
+	int msglen = sizeof(AITFHeader);
 
 	addrinfo hints, *res;
 	memset(&hints, 0, sizeof(hints));

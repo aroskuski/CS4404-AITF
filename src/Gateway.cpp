@@ -84,10 +84,86 @@ void Gateway::sendBlockReq(Flow f){
 }
 
 void *recvBlockReq(void *arg){
+	Gateway &g = (Gateway *)arg;
 	int sock = (long) arg;
 	char buf[1500];
 	int len = recv(sock, buf, 1500, 0);
+	shutdown(sock, 2);
 	AITFHeader *h = (AITFHeader *)buf;
+	Flow f = Flow(h->pktFlow, h->flowSize);
+	//FlowEntry fe = f.getAttackGateway();
+	//std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]);
+	if(h->commandFlags == 1){
+		sock = socket(AF_INET, SOCK_STREAM, 0);
+		FlowEntry fe = f.getAttackGateway();
+		std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]);
+		g.tempBlock(ipaddr);
+		//char msg[1500];
+		//int msglen = sizeof(AITFHeader);
+		addrinfo hints, *res;
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_family = AF_INET;
+		hints.ai_socktype = SOCK_STREAM;
+		getaddrinfo(ipaddr.c_str(), "1025", &hints, &res);
+		connect(sock, res->ai_addr, res->ai_addrlen);
+
+		h->commandFlags = 2;
+
+		send(sock, buf, sizeof(AITFHeader), 0);
+		char buf2[1500];
+		recv(sock, buf2, sizeof(AITFHeader), 0);
+		g.remTempBlock(ipaddr);
+		send(sock, buf2, sizeof(AITFHeader), 0);
+
+		shutdown(sock, 2);
+	} else if ( h->commandFlags == 2){
+		FlowEntry fe = f.getAttackHost();
+		std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]);
+		long long nonce = 0;
+		h->nonce = 0;
+		send(sock, buf, sizeof(AITFHeader), 0);
+		g.tempBlock(ipaddr);
+		char buf2[1500];
+		recv(sock, buf2, sizeof(AITFHeader), 0);
+		AITFHeader *h2 = (AITFHeader *) buf2;
+		if(h2->nonce == nonce){
+			shutdown(sock, 2);
+			sock = socket(AF_INET, SOCK_STREAM, 0);
+			addrinfo hints, *res;
+			memset(&hints, 0, sizeof(hints));
+			hints.ai_family = AF_INET;
+			hints.ai_socktype = SOCK_STREAM;
+			getaddrinfo(ipaddr.c_str(), "1025", &hints, &res);
+			connect(sock, res->ai_addr, res->ai_addrlen);
+			h->nonce = 0;
+			send(sock, buf, sizeof(AITFHeader), 0);
+		}
+		g.remTempBlock(ipaddr);
+		shutdown(sock, 2);
+	} else {
+		char ipaddrcstring[20];
+		inet_ntop(AF_INET, &h->pktFlow[h->payloadSize], ipaddrcstring, 20);
+		std::string ipaddr = std::string(ipaddrcstring);
+		g.tempBlock(ipaddr);
+		long long nonce = 0;
+		h->nonce = nonce;
+		send(sock, buf, sizeof(AITFHeader), 0);
+		char buf2[1500];
+		recv(sock, buf2, sizeof(AITFHeader), 0);
+		AITFHeader *h2 = (AITFHeader *) buf2;
+		if(h2->nonce == nonce){
+			sem_wait(&Gateway::lsem);
+			gatewayblock gb;
+			gb.ipaddr = ipaddr;
+			gb.ttl = 30;
+			std::string tempstr = std::string("iptables -A OUTPUT ") + gb.ipaddr + std::string(" -j DROP");
+			system(tempstr.c_str());
+			Gateway::blocklist.push_back(gb);
+			sem_post(&Gateway::lsem);
+		}
+		g.remTempBlock(ipaddr);
+		shutdown(sock, 2);
+	}
 
 
 
@@ -131,12 +207,24 @@ void *gatewayTaskThread(void *arg){
 	return NULL;
 }
 
-void Gateway::tempBlock(){
-
+void Gateway::tempBlock(std::string ipaddr){
+	sem_wait(&Gateway::lsem);
+	gatewayblock gb;
+	gb.ipaddr = ipaddr;
+	gb.ttl = 999;
+	std::string tempstr = std::string("iptables -A OUTPUT ") + gb.ipaddr + std::string(" -j DROP");
+	system(tempstr.c_str());
+	Gateway::blocklist.push_back(gb);
 }
 
-void Gateway::remTempBlock(){
-
+void Gateway::remTempBlock(std::string ipaddr){
+	gatewayblock gb;
+	gb.ipaddr = ipaddr;
+	gb.ttl = 999;
+	std::string tempstr = std::string("iptables -D OUTPUT ") + gb.ipaddr + std::string(" -j DROP");
+	system(tempstr.c_str());
+	Gateway::blocklist.remove(gb);
+	sem_post(&Gateway::lsem);
 }
 
 void Gateway::escalate(Flow f){
