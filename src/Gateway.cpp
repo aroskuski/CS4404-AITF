@@ -101,7 +101,7 @@ void *gatewayBlockCleanupThread(void *arg){
 		for(std::list<hostblock>::iterator it  =  Gateway::blocklist.begin(); it != Gateway::blocklist.end(); it++){
 			it->ttl--;
 			if(it->ttl == 0){
-				std::string tempstr = std::string("iptables -D OUTPUT ") + it->ipaddr + std::string(" -j DROP");
+				std::string tempstr = std::string("iptables -D INPUT ") + it->ipaddr + std::string(" -j DROP");
 				system(tempstr.c_str());
 			}
 		}
