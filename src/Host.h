@@ -38,5 +38,6 @@ public:
 };
 
 void *hostTaskThread(void *arg);
+void *hostRecvThread(void *arg);
 
 #endif /* HOST_H_ */

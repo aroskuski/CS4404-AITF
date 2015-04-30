@@ -41,9 +41,22 @@ int main(){
     sockaddr_storage their_addr;
     for(;;){
     	unsigned int addr_size = sizeof(their_addr);
-    	accept(Host::s, (sockaddr *) &their_addr, &addr_size);
+    	int sock = accept(Host::s, (sockaddr *) &their_addr, &addr_size);
+    	pthread_t t;
+    	pthread_create(&t, NULL, &hostRecvThread, (void *)sock);
     }
 
+}
+
+void *hostRecvThread(void *arg){
+	int sock = (long) arg;
+	char buf[1500];
+	int len = recv(sock, buf, 1500, 0);
+	AITFHeader *h = (AITFHeader *)buf;
+
+
+
+	return NULL;
 }
 
 void *hostTaskThread(void *arg){
@@ -75,8 +88,8 @@ Host::~Host() {
 void Host::sendBlockReq(Flow f){
 	FlowEntry fe = f.getVicimGateway();
 	std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]) + ".";
-	char msg[1024];
-	int msglen = 1023;
+	char msg[1500];
+	int msglen = 1500;
 
 	addrinfo hints, *res;
 	memset(&hints, 0, sizeof(hints));
@@ -93,11 +106,6 @@ void Host::sendBlockReq(Flow f){
 	freeaddrinfo(res);
 
 
-}
-
-void Host::honorBlockReq(std::string dest_addr){
-	unsigned char h[4];
-	this->st.addHost(h);
 }
 
 void Host::sendMessage(Flow f){

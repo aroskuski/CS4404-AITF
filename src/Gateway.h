@@ -15,6 +15,7 @@
 #include "Flow.h"
 #include "Filter.h"
 #include "ShadowTable.h"
+#include "Packet.h"
 
 struct message{
 	int type;
@@ -27,6 +28,7 @@ public:
 	ShadowTable st;
 	void sendMessage(message m);
 	virtual ~Gateway();
+	static int s;
 private:
 	void sendBlockReq(Flow f);
 	void recvBlockReq();
@@ -36,5 +38,8 @@ private:
 	bool checkWhitelist();
 
 };
+
+void *recvBlockReq(void * arg);
+void *gatewayTaskThread(void *arg);
 
 #endif /* GATEWAY_H_ */
