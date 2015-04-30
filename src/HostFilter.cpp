@@ -45,7 +45,7 @@ int hostFilterMain() {
     }
     
     // unbind the handle to prevent any inability to bind
-    if (nfq_unbind_pf(handle, AF_INET < 0)) {
+    if (nfq_unbind_pf(handle, AF_INET) < 0) {
         std::cerr << "ERROR: nfq_unbind_pf()" << std::endl;
         exit(1);
     }
@@ -78,7 +78,6 @@ int hostFilterMain() {
     // when a packet is received from the queue go and handle it with the callback
     while (true) {
         if ((bytes = recv(fd, packetBuffer, sizeof(packetBuffer), 0)) >= 0) {
-            std::cout << "Packet received..." << std::endl;
             nfq_handle_packet(handle, packetBuffer, bytes);
         }
     }
