@@ -12,7 +12,7 @@
 class HostPolicyModule {
 public:
 	HostPolicyModule();
-	virtual bool checkHighFlowPolicy(Flow f) = 0;
+	virtual bool checkHighFlowPolicy(Flow f);
 	virtual ~HostPolicyModule();
 };
 

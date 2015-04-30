@@ -113,6 +113,6 @@ void Gateway::escalate(){
 
 }
 
-bool Gateway::checkWhitelist(){
+bool Gateway::checkBlacklist(){
 	return false;
 }

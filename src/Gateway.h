@@ -35,7 +35,7 @@ private:
 	void tempBlock();
 	void remTempBlock();
 	void escalate();
-	bool checkWhitelist();
+	bool checkBlacklist();
 
 };
 
