@@ -63,7 +63,7 @@ void *hostRecvThread(void *arg){
 	FlowEntry fe = f.getVictimHost();
 	sem_wait(&Host::lsem);
 	hostblock hb;
-	hb.ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]) + ".";
+	hb.ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]);
 	hb.ttl = 30;
 	std::string tempstr = std::string("iptables -A OUTPUT ") + hb.ipaddr + std::string(" -j DROP");
 	system(tempstr.c_str());
@@ -120,7 +120,7 @@ Host::~Host() {
 
 void Host::sendBlockReq(Flow f){
 	FlowEntry fe = f.getVictimGateway();
-	std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]) + ".";
+	std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]);
 	char msg[1500];
 	int msglen = 1500;
 
