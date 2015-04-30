@@ -26,4 +26,14 @@ struct AITFHeader {
     uint16_t payloadSize;
 };
 
+/**
+ * C structure for a packet flow
+ * - Contains the ip address of a visited machine
+ * - Contains the nonce for that visited machine
+ */
+struct flow {
+    in_addr ip;
+    uint64_t nonce;
+};
+
 #endif /* PACKET_H_ */
