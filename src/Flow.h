@@ -19,7 +19,7 @@
 
 struct FlowEntry {
 	unsigned char ipaddr[4];
-	unsigned char nonce[64];
+	unsigned char nonce[8];
 };
 
 class Flow {

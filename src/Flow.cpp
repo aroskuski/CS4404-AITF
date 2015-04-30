@@ -19,9 +19,10 @@ struct flow {
  */
 Flow::Flow(struct flow* f, int flowSize) {
 	FlowEntry newFlowEntry;
+	unsigned char ipAddressBytes[4];
 	for (int i = 0; i < flowSize; i++) {
-		newFlowEntry.ipaddr = (unsigned char[4]) &f[i].ip;
-		newFlowEntry.nonce = (unsigned char[64]) &f[i].nonce;
+		ipAddressBytes[0] = (unsigned char*) ((&f[i].ip >> 24) & 0xFF);
+		newFlowEntry.nonce = (char*) f[i].nonce;
 		flowlist.push_back(newFlowEntry);
 	}
 }
@@ -33,7 +34,7 @@ Flow::~Flow() {
 flow* Flow::getFlow() {
 	struct flow* result;
 	for (int i = 0; i < flowlist.size(); i++) {
-		result[i] = (in_addr) flowlist[i].ipaddr;
+		result[i] = (uint32_t) flowlist[i].ipaddr;
 		result[i] = (uint64_t) flowlist[i].nonce;
 	}
 	return result;
@@ -92,7 +93,7 @@ FlowEntry Flow::getVictimGateway() {
 FlowEntry Flow::getVictimHost() {
 	FlowEntry result;
 	if (flowlist.size() >= 4) {
-		result = flowlist[flowlist.size-1];
+		result = flowlist[flowlist.size()-1];
 	}
 	return result;
 }

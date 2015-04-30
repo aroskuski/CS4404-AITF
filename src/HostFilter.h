@@ -120,7 +120,7 @@ struct ipPacket {
  * - Contains the maximum length for the packet flow
  */
 struct routeRecord {
-    struct flow pktFlow[6];
+    struct flow pktFlow[10];
     uint16_t position;
     uint16_t length;
 };

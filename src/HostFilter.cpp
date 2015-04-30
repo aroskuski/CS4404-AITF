@@ -69,7 +69,6 @@ int hostFilterMain() {
     
     // when a packet is received from the queue go and handle it with the callback
     while (true) {
-        std::cout << "Waiting for packet..." << std::endl;
         if ((bytes = recv(fd, packetBuffer, sizeof(packetBuffer), 0)) >= 0) {
             std::cout << "Packet received..." << std::endl;
             nfq_handle_packet(handle, packetBuffer, bytes);
@@ -125,27 +124,19 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
             return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
         }
         
-        // read the application-layer protocol of the AITF packet
-        switch(AITFPkt->aitfHeader.commandFlags) {
-            case FILTERING_REQUEST:
-                // notify andrew of the filtering request
-                break;
-            default:
-                break;
-        }
-        
-        // add to the route record of the recieved AITF packet
+        // add to the route record of the received AITF packet
         AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].ip = AITFPkt->ipHeader.ip_dst;
         AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].nonce = 1;
-        
+
         // check shadow table for evidence of flow being present
-        // provide andrew with notification and drop packet
         if (false) {
-	   return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+	       return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
         }
         
-        // provide Andrew with the observed packet flow
+        // provide observed packet flow to host policy module
+        HostPolicyModule
         AITFPkt->rr.pktFlow;
+
     }
 
     return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
