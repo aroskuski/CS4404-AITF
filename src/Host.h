@@ -14,6 +14,8 @@
 #include <cstring>
 #include <string>
 #include <pthread.h>
+#include <semaphore.h>
+#include <queue>
 #include "Flow.h"
 #include "Filter.h"
 #include "ShadowTable.h"
@@ -29,7 +31,10 @@ public:
 	void sendBlockReq(Flow f);
 	void honorBlockReq(std::string dest_addr);
 	static int s;
-
+	static pthread_mutex_t m;
+	static sem_t sem;
+	static sem_t qsem;
+	static std::queue<Flow> q;
 };
 
 void *hostTaskThread(void *arg);

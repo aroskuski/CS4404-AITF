@@ -13,7 +13,11 @@ int main(){
 	//filter.startFilterThread(true);
 	pthread_t taskThread;
 
-	pthread_create(&taskThread, NULL, &hostTaskThread, NULL);
+	pthread_mutexattr_t mutexattr;
+	pthread_mutexattr_init(&mutexattr);
+    pthread_mutex_init(&Host::m, &mutexattr);
+
+	pthread_create(&taskThread, NULL, &hostTaskThread, (void *) &host);
 
 	Host::s = -1;
 	while(Host::s < 0){
@@ -43,14 +47,25 @@ int main(){
 }
 
 void *hostTaskThread(void *arg){
+	Host &h = *arg;
+	sem_init(&Host::sem, 0 , 0);
+	sem_init(&Host::qsem, 0 , 1);
 
+	for(;;){
+		sem_wait(&Host::sem);
+		sem_wait(&Host::qsem);
+		Flow f = Host::q.front();
+		Host::q.pop();
+		sem_post(&Host::qsem);
+		h.sendBlockReq(f);
+	}
 
 	return NULL;
 }
 
 Host::Host() {
 	st = ShadowTable();
-
+	q = std::queue<Flow>();
 }
 
 Host::~Host() {
@@ -76,4 +91,11 @@ void Host::sendBlockReq(Flow f){
 void Host::honorBlockReq(std::string dest_addr){
 	unsigned char h[4];
 	this->st.addHost(h);
+}
+
+void Host::sendMessage(Flow f){
+	sem_wait(&qsem);
+	q.push(f);
+	sem_post(&qsem);
+	sem_post(&sem);
 }
