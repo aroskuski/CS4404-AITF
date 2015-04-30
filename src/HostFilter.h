@@ -23,6 +23,7 @@
 #include <net/if.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <pthread.h>
 #include "Packet.h"
 #include "HostPolicyModule.h"
 #include "Packet.h"
@@ -63,7 +64,7 @@ public:
  * when the startFilterThread() method of the HostFilter class is used.
  * @return 0 upon success, 1 upon failure.
  */
-int hostFilterMain();
+void* hostFilterMain(void* arg);
 
 /**
  * This is a callback function that is used by the netfilter module

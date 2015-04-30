@@ -21,7 +21,12 @@ HostFilter::~HostFilter(){
  * three responsibilities listed for the HostFilter class.
  */
 void HostFilter::startFilterThread() {
-    
+    pthread_t hostFilterThread;
+    int arg = 0;
+    if (pthread_create(&hostFilterThread, NULL, &hostFilterMain, (void*) &arg)) {
+    	std::cout << "ERROR: pthread_create()" << std::endl;
+    	exit(1);
+    }
 }
 
 /**
@@ -29,7 +34,7 @@ void HostFilter::startFilterThread() {
  * when the startFilterThread() method of the HostFilter class is used.
  * @return 0 upon success, 1 upon failure.
  */
-int hostFilterMain() {
+void* hostFilterMain(void* arg) {
     
     // declaration of local variables
     int fd;
@@ -81,7 +86,7 @@ int hostFilterMain() {
             nfq_handle_packet(handle, packetBuffer, bytes);
         }
     }
-    return 0;
+    return NULL;
 }
 
 /**
