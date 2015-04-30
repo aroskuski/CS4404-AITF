@@ -30,6 +30,7 @@ public:
 	FlowEntry getAttackHost();
 	FlowEntry getAttackGateway();
 	FlowEntry getVictimGateway();
+	FlowEntry getVictimHost();
 	int size();
 	virtual ~Flow();
 	flow* getFlow();

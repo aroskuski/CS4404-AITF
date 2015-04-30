@@ -70,9 +70,6 @@ FlowEntry Flow::getAttackHost() {
 	if (flowlist.size() >= 4) {
 		result = flowlist[0];
 	}
-	else {
-		result = nullptr;
-	}
 	return result;
 }
 
@@ -81,19 +78,21 @@ FlowEntry Flow::getAttackGateway() {
 	if (flowlist.size() >= 4) {
 		result = flowlist[1];
 	}
-	else {
-		result = nullptr;
-	}
 	return result;
 }
 
 FlowEntry Flow::getVictimGateway() {
 	FlowEntry result;
 	if (flowlist.size() >= 4) {
-		result = flowlist[flowlist.size()-1];
+		result = flowlist[flowlist.size()-2];
 	}
-	else {
-		result = nullptr;
+	return result;
+}
+
+FlowEntry Flow::getVictimHost() {
+	FlowEntry result;
+	if (flowlist.size() >= 4) {
+		result = flowlist[flowlist.size-1];
 	}
 	return result;
 }
