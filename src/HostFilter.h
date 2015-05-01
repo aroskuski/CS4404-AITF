@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 ___Alexander W. Witt & Andrew J. Roskuski___. All rights reserved.
 //
 
-#ifndef __HostFilter_H__
-#define __HostFilter_H__
+#ifndef __Acquiring_IP_Address__HostFilter__
+#define __Acquiring_IP_Address__HostFilter__
 
 #include <iostream>
 #include <stdlib.h>
@@ -24,7 +24,6 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <pthread.h>
-#include "Host.h"
 #include "Packet.h"
 #include "HostPolicyModule.h"
 #include "Hash.h"
