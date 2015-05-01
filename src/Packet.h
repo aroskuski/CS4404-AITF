@@ -5,11 +5,15 @@
  *      Author: andrew
  */
 
-#ifndef PACKET_H_
-#define PACKET_H_
+#ifndef __PACKET_H__
+#define __PACKET_H__
 #include <stdint.h>
 #include <netinet/ip.h>
 #include "Flow.h"
+
+#define FILTERING_REQUEST 1
+#define COUNTER_CONNECTION_INITIATION 2
+#define COUNTER_CONNECTION_RESPONSE 3
 
 uint16_t checksum(void* vdata, size_t length);
 
@@ -114,4 +118,4 @@ struct RRPacket {
     char payload[1500];
 };
 
-#endif /* PACKET_H_ */
+#endif /* __PACKET_H__ */

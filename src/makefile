@@ -7,8 +7,11 @@
 
 all: hostAITF gatewayAITF
 
-hostAITF: Host.o HostPolicyModule.o HostFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o
-	g++ Host.o HostPolicyModule.o HostFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o -o hostAITF -lnetfilter_queue -lpthread -lssl -lcrypto
+hostAITF: hostRunnable.o Flow.o Hash.o Host.o HostFilter.o HostPolicyModule.o Logger.o Packet.o ShadowTable.o
+	g++ hostRunnable.o Flow.o Hash.o Host.o HostFilter.o HostPolicyModule.o Logger.o Packet.o ShadowTable.o -o hostAITF -lnetfilter_queue -lpthread -lcrypto
+
+hostRunnable.o: hostRunnable.cpp
+	g++ -c hostRunnable.cpp
 
 gatewayAITF: Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o
 	g++ Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o -o gatewayAITF -lpthread -lssl -lcrypto -lnetfilter_queue

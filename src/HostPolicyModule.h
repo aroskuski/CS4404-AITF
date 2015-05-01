@@ -5,8 +5,8 @@
  *      Author: andrew
  */
 
-#ifndef HOSTPOLICYMODULE_H_
-#define HOSTPOLICYMODULE_H_
+#ifndef __HOSTPOLICYMODULE_H__
+#define __HOSTPOLICYMODULE_H__
 #include "Flow.h"
 
 class HostPolicyModule {
@@ -16,4 +16,4 @@ public:
 	virtual ~HostPolicyModule();
 };
 
-#endif /* HOSTPOLICYMODULE_H_ */
+#endif /* __HOSTPOLICYMODULE_H__ */

@@ -38,7 +38,7 @@ void* hostFilterMain(void* arg) {
     // declaration of local variables
     int fd;
     int bytes;
-    char packetBuffer[4096];
+    char packetBuffer[1500];
     struct nfq_handle *handle;
     struct nfq_q_handle *queueHandle;
     
@@ -82,6 +82,7 @@ void* hostFilterMain(void* arg) {
     // when a packet is received from the queue go and handle it with the callback
     while (true) {
         if ((bytes = recv(fd, packetBuffer, sizeof(packetBuffer), 0)) >= 0) {
+            std::cout << "A packet has been received at the queue" << std::endl;
             nfq_handle_packet(handle, packetBuffer, bytes);
         }
     }
@@ -126,16 +127,20 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
 
     // determine if the packet is an AITF packet
     protocol = (u_int8_t) regularPkt->ipHeader.ip_p;
-    
+
     // manage the packet when it is recognized as an AITF packet
     if (protocol == 61) {
-        
+        std::cout << "- Received an AITF packet" << std::endl;
+
         // drop the received packet if the route record is malformed
         if (AITFPkt->rr.position + 1 > AITFPkt->rr.length) {
             return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
         }
         
         // add to the route record of the received AITF packet
+        Hash hsh = Hash();
+        //unsigned char[4] ourIp = "";
+        unsigned int outlen = 0;
         AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].ip = AITFPkt->ipHeader.ip_dst;
         AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].nonce = 1;
         
@@ -157,5 +162,6 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         memcpy(newPkt->payload, AITFPkt->payload, 1500);
         return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(ipPacket), (const unsigned char*) newPkt);
     }
+    std::cout << "- Returning packet back to queue" << std::endl;
     return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
 }

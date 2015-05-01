@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 ___Alexander W. Witt & Andrew J. Roskuski___. All rights reserved.
 //
 
-#ifndef __Acquiring_IP_Address__HostFilter__
-#define __Acquiring_IP_Address__HostFilter__
+#ifndef __HostFilter_H__
+#define __HostFilter_H__
 
 #include <iostream>
 #include <stdlib.h>
@@ -24,20 +24,15 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <pthread.h>
+#include "Host.h"
 #include "Packet.h"
 #include "HostPolicyModule.h"
-#include "Packet.h"
-
-#define FILTERING_REQUEST 1
-#define COUNTER_CONNECTION_INITIATION 2
-#define COUNTER_CONNECTION_RESPONSE 3
+#include "Hash.h"
 
 /**
  * The HostFilter class is a C++ class that is used for
  * performing the following tasks on a host machine:
- * (1) Providing flow information from received packets
- * (2) Checking against a shadow table to drop and report non-compliant flows
- * (3) Detecting and report AITF filtering requests issued to the host
+ * (1) Providing flow information from received packets to the host
  * @version 1.0
  */
 class HostFilter {
@@ -77,4 +72,4 @@ void* hostFilterMain(void* arg);
  */
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pkt, void *cbData);
 
-#endif /* defined(__Acquiring_IP_Address__HostFilter__) */
+#endif /* defined(__HostFilter_H__) */

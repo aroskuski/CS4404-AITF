@@ -5,8 +5,9 @@
  *      Author: andrew
  */
 
-#ifndef FLOW_H_
-#define FLOW_H_
+#ifndef __FLOW_H__
+#define __FLOW_H__
+
 #include <stdlib.h>
 #include <vector>
 #include <netinet/in.h>
@@ -14,13 +15,12 @@
 #include <cstdio>
 #include <string>
 #include <cstring>
+
 /**
  * C structure for a packet flow
  * - Contains the ip address of a visited machine
  * - Contains the nonce for that visited machine
  */
-
-
 struct FlowEntry {
 	unsigned char ipaddr[4];
 	uint64_t nonce;
@@ -43,4 +43,4 @@ public:
 	std::vector<FlowEntry> flowlist;
 };
 
-#endif /* FLOW_H_ */
+#endif /* __FLOW_H__ */

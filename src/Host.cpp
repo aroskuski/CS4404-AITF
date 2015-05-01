@@ -14,61 +14,10 @@ std::list<hostblock> Host::blocklist = std::list<hostblock>();
 sem_t Host::lsem;
 int Host::s;
 
-int main(){
-	Host host = Host();
-	HostFilter filter = HostFilter();
-	filter.startFilterThread();
-	pthread_t taskThread;
-	pthread_t blockThread;
-
-	//pthread_mutexattr_t mutexattr;
-	//pthread_mutexattr_init(&mutexattr);
-    //pthread_mutex_init(&Host::m, &mutexattr);
-
-    sem_init(&Host::sem, 0 , 0);
-    sem_init(&Host::qsem, 0 , 1);
-    sem_init(&Host::lsem, 0, 1);
-
-	pthread_create(&taskThread, NULL, &hostTaskThread, (void *) &host);
-	pthread_create(&blockThread, NULL, &hostBlockCleanupThread, (void *) &host);
-
-	Host::s = -1;
-	while(Host::s < 0){
-		Host::s = socket(AF_INET, SOCK_STREAM, 0);
-	}
-
-	// begin the thread for filtering packets on the host
-	HostFilter hostFilter = HostFilter();
-	hostFilter.startFilterThread();
-
-	addrinfo hints, *res;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
-
-    getaddrinfo(NULL, "1025", &hints, &res);
-
-    bind(Host::s, res->ai_addr, res->ai_addrlen);
-
-    listen(Host::s,10);
-
-    int len;
-    char buf[1024];
-    sockaddr_storage their_addr;
-    for(;;){
-    	unsigned int addr_size = sizeof(their_addr);
-    	int sock = accept(Host::s, (sockaddr *) &their_addr, &addr_size);
-    	pthread_t t;
-    	pthread_create(&t, NULL, &hostRecvThread, (void *)sock);
-    }
-
-}
-
 void *hostRecvThread(void *arg){
 	int sock = (long) arg;
-	char buf[1500];
-	int len = recv(sock, buf, 1500, 0);
+	char buf[PACKET_PAYLOAD_SIZE];
+	int len = recv(sock, buf, PACKET_PAYLOAD_SIZE, 0);
 	AITFHeader *h = (AITFHeader *)buf;
 	Flow f = Flow(h->pktFlow, h->flowSize);
 	FlowEntry fe = f.getVictimHost();
@@ -136,14 +85,14 @@ void Host::sendBlockReq(Flow f){
 	char ipaddrstring[20];
 	sprintf(ipaddrstring, "%d.%d.%d.%d",fe.ipaddr[0],fe.ipaddr[1],fe.ipaddr[2],fe.ipaddr[3]);
 	std::string ipaddr = std::string(ipaddrstring);
-	char msg[1500];
+	char msg[PACKET_PAYLOAD_SIZE];
 	int msglen = sizeof(AITFHeader);
 
 	addrinfo hints, *res;
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
-	getaddrinfo(ipaddr.c_str(), "1025", &hints, &res);
+	getaddrinfo(ipaddr.c_str(), PORT, &hints, &res);
 	int sock = socket(AF_INET, SOCK_STREAM, 0);
 	connect(sock, res->ai_addr, res->ai_addrlen);
 
@@ -161,8 +110,6 @@ void Host::sendBlockReq(Flow f){
 
 	shutdown(sock, 2);
 	freeaddrinfo(res);
-
-
 }
 
 void Host::sendMessage(Flow f){

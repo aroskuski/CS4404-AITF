@@ -5,8 +5,9 @@
  *      Author: andrew
  */
 
-#ifndef SHADOWTABLE_H_
-#define SHADOWTABLE_H_
+#ifndef __SHADOWTABLE_H__
+#define __SHADOWTABLE_H__
+
 #include <sys/time.h>
 #include <list>
 #include <semaphore.h>
@@ -39,4 +40,4 @@ private:
 bool operator==(const ShadowEntry& lhs, const ShadowEntry& rhs);
 
 
-#endif /* SHADOWTABLE_H_ */
+#endif /* __SHADOWTABLE_H__ */

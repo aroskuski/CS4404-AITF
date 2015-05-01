@@ -5,13 +5,15 @@
  *      Author: andrew
  */
 
-#ifndef LOGGER_H_
-#define LOGGER_H_
+#ifndef __LOGGER_H__
+#define __LOGGER_H__
+
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <pthread.h>
 using namespace std;
+
 class Logger {
 public:
 	Logger();
@@ -23,4 +25,4 @@ private:
 	static ofstream *outfile;
 };
 
-#endif /* LOGGER_H_ */
+#endif /* __LOGGER_H__ */
