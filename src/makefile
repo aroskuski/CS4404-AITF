@@ -13,8 +13,11 @@ hostAITF: hostRunnable.o Flow.o Hash.o Host.o HostFilter.o HostPolicyModule.o Lo
 hostRunnable.o: hostRunnable.cpp
 	g++ -c hostRunnable.cpp
 
-gatewayAITF: Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o
+gatewayAITF: gatewayRunnable.o Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o
 	g++ Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o -o gatewayAITF -lpthread -lssl -lcrypto -lnetfilter_queue
+
+gatewayRunnable.o: gatewayRunnable.cpp
+	g++ -c gatewayRunnable.cpp
 
 # All host object files
 Host.o: Host.cpp Host.h
