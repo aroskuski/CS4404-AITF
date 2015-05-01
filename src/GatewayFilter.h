@@ -25,6 +25,7 @@
 #include <string.h>
 #include "Packet.h"
 #include "ShadowTable.h"
+#include "Gateway.h"
 
 #define FILTERING_REQUEST 1
 #define COUNTER_CONNECTION_INITIATION 2
@@ -57,8 +58,7 @@ public:
      * This method is used spawning a thread for carrying out the
      * six responsibilities listed for the GatewayFilter class.
      */
-
-    void startFilterThread(ShadowTable* s);
+    void startFilterThread(gwFilterData* gwFD);
 };
 
 /**
