@@ -7,7 +7,8 @@
 
 #include "Logger.h"
 
-ofstream *Logger::outfile = new ofstream();
+std::ofstream *Logger::outfile = new std::ofstream();
+sem_t Logger::sem;
 
 Logger::Logger() {
 	// TODO Auto-generated constructor stub
@@ -18,18 +19,23 @@ Logger::~Logger() {
 	// TODO Auto-generated destructor stub
 }
 
-void Logger::writeToLog(string s){
+void Logger::writeToLog(std::string s){
 	//ofstream &out = *(Logger::outfile);
+	sem_wait(&sem);
 	*(Logger::outfile) << s << '\n';
+	sem_post(&sem);
 }
 
 
-void Logger::initLog(string out){
+void Logger::initLog(std::string out){
 	//Logger::outfile = new ofstream();
+	sem_init(&sem, 0, 1);
 	Logger::outfile->open(out.c_str());
 }
 
 void Logger::closeLog(){
+	sem_wait(&sem);
+	sem_destroy(&sem);
 	Logger::outfile->close();
 	delete Logger::outfile;
 }

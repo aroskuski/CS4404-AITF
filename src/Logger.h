@@ -12,17 +12,18 @@
 #include <iostream>
 #include <fstream>
 #include <pthread.h>
-using namespace std;
+#include <semaphore.h>
 
 class Logger {
 public:
 	Logger();
-	static void writeToLog(string s);
-	static void initLog(string outfile);
+	static void writeToLog(std::string s);
+	static void initLog(std::string outfile);
 	static void closeLog();
 	virtual ~Logger();
 private:
-	static ofstream *outfile;
+	static std::ofstream *outfile;
+	static sem_t sem;
 };
 
 #endif /* __LOGGER_H__ */
