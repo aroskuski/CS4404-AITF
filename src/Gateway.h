@@ -32,6 +32,11 @@ struct gatewayblock{
 	int ttl;
 };
 
+struct gwFilterData {
+	ShadowTable* st;
+	Gateway* gw;
+};
+
 class Gateway {
 public:
 	Gateway();

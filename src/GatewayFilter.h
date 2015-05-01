@@ -31,6 +31,11 @@
 #define COUNTER_CONNECTION_INITIATION 2
 #define COUNTER_CONNECTION_RESPONSE 3
 
+struct gwFilterData {
+	ShadowTable* st;
+	Gateway* gw;
+};
+
 /**
  * The GatewayFilter class is a C++ class that is used for
  * performing the following tasks on a gateway machine:

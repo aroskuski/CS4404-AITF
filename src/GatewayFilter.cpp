@@ -8,11 +8,6 @@
 
 #include "GatewayFilter.h"
 
-struct gwFilterData {
-	ShadowTable* st;
-	Gateway* gw;
-};
-
 /**
  * This method is used spawning a thread for carrying out the
  * six responsibilities listed for the GatewayFilter class.

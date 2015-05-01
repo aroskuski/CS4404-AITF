@@ -25,7 +25,11 @@ bool operator==(const gatewayblock& lhs, const gatewayblock& rhs){
 int main() {
 	Gateway gateway = Gateway();
 	GatewayFilter filter = GatewayFilter();
-	filter.startFilterThread(&gateway.st);
+	struct gatewayFilterData* gwFD;
+	gwFD->st = &gateway.st;
+	gwFD->gw = &this;
+
+	filter.startFilterThread(gwFD);
 
 	gateway.initBlacklist();
 
