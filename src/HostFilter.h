@@ -24,6 +24,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <pthread.h>
+#include "Host.h"
 #include "Packet.h"
 #include "HostPolicyModule.h"
 #include "Hash.h"
