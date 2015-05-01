@@ -8,13 +8,18 @@
 
 #include "GatewayFilter.h"
 
+struct gwFilterData {
+	ShadowTable* st;
+	Gateway* gw;
+};
+
 /**
  * This method is used spawning a thread for carrying out the
  * six responsibilities listed for the GatewayFilter class.
  */
-void GatewayFilter::startFilterThread(ShadowTable* s) {
+void GatewayFilter::startFilterThread(gwFilterData* gwFD) {
 	pthread_t gatewayFilterThread;
-	    if (pthread_create(&gatewayFilterThread, NULL, &gatewayFilterMain, (void*) s)) {
+	    if (pthread_create(&gatewayFilterThread, NULL, &gatewayFilterMain, (void*) gwFD)) {
 	    	std::cout << "ERROR: pthread_create()" << std::endl;
 	    	exit(1);
 	    }
@@ -33,7 +38,7 @@ void* gatewayFilterMain(void* arg) {
     char packetBuffer[4096];
     struct nfq_handle *handle;
     struct nfq_q_handle *queueHandle;
-    ShadowTable* s = (ShadowTable*) arg;
+    gwFilterData* gwFD = (gwFilterData*) arg;
     
     // attempt to open a queue connection handle from the netfilter module
     if (!(handle = nfq_open())) {
@@ -54,7 +59,7 @@ void* gatewayFilterMain(void* arg) {
     }
     
     // create the handle for the nfq queue and ensure that it is linked to a callback
-    if (!(queueHandle = nfq_create_queue(handle, 0, &cb, (void*) s))) {
+    if (!(queueHandle = nfq_create_queue(handle, 0, &cb, (void*) gwFD))) {
         std::cerr << "ERROR: nfq_create_queue()" << std::endl;
         exit(1);
     }
@@ -96,7 +101,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     uint16_t id;
     uint8_t protocol;
     unsigned char* pktData;
-    ShadowTable s = (ShadowTable) cbData;
+    gwFilterData* gwFD = (gwFilterData*) cbData;
     
     struct ipPacket* regularPkt;
     struct ipPacket* newPkt;
@@ -110,7 +115,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     
     // acquire the netfilter id of the received packet
     if ((header = nfq_get_msg_packet_hdr(pkt))) {
-        id = ntohl(header->packet_id);
+        id = ntohl((uint32_t)header->packet_id);
     }
     
     // acquire the received packet and read in its contents
@@ -131,34 +136,43 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         }
         
         // add to the route record of the received AITF packet
-        // AITFPkt->routeRecord.pktFlow[AITFPkt->routeRecord.position + 1].ip = AITFPkt->ipHeader.ip_dst;
-        // AITFPkt->routeRecord.pktFlow[AITFPkt->routeRecord.position + 1].nonce = 1;
+        // AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].ip = htonl()
+        AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].nonce = htons(checksum(AITFPkt, sizeof(AITFPacket)));
+
+        // create a flow object from the observed route record
+        Flow flow = Flow(AITFPkt->rr.pktFlow, AITFPkt->rr.length - (AITFPkt->rr.length - AITFPkt->rr.position + 1));
         
+        // determine if the flow is in the shadowtable and respond to the gateway if it is
+        if (gwFD->st->containsFlow(flow)) {
+        	gwFD->gw->sendMessage(flow);
+        	return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+        }
+
+        // determine whether the next hop is legacy and remove the route record if it is
+        if (gwFD->gw->checkBlacklist(ntohl((uint32_t)AITFPkt->ipHeader.ip_dst))) {
+        	RRPkt = (struct RRPacket*) AITFPkt;
+        	regularPkt->ipHeader = RRPkt->ipHeader;
+        	memset(regularPkt->payload, 0, 1500);
+        	memcpy(regularPkt->payload, RRPkt->payload, 1500);
+        	regularPkt->ipHeader.ip_sum = checksum(regularPkt, sizeof(ipPacket));
+        	return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct ipPacket), (unsigned char*)regularPkt);
+        }
+
         return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct RRPacket), (unsigned char*)RRPkt);
     }
     
-    // manage the packet when it is recognized as an AITF control packet w/ RR
-    if (protocol == 143) {
-        
-        // drop the recieved packet if the route record is malformed
-        if (AITFPkt->rr.position + 1 > AITFPkt->rr.length
-            || AITFPkt->rr.length != 6) {
-            return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
-        }
-        
-        // if we are the destination or the gateway to the destination read
-        // otherwise just add to RR and forward
-        
-        // if the packet is a filtering request packet respond to the policy module
-        // if the packet is a counter connection initialization respond to the policy module
-        // if the packet is a counter connection response respond to the policy module
-        
-        // if the packet is headed to a legacy host drop the RR
-        if (false) {
-            newPkt->ipHeader = AITFPkt->ipHeader;
-            //newPkt->ipHeader.ip_p =
-            memcpy(newPkt->payload, AITFPkt->payload, 1500);
-            return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct ipPacket), (unsigned char *)newPkt);
-        }
+    // add a route record shim to the received packet if the next hop is not the destination
+    if (!(gwFD->gw->checkBlacklist(ntohl((uint32_t)regularPkt->ipHeader.ip_dst)))) {
+    	RRPkt = (struct RRPacket*) regularPkt;
+    	RRPkt->ipHeader = regularPkt->ipHeader;
+    	RRPkt->ipHeader.ip_p = 61;
+    	memset(RRPkt->payload, 0, 1500);
+    	memcpy(RRPkt->payload, regularPkt->payload, 1500);
+    	RRPkt->routeRecord.length = 10;
+    	// RRPkt->routeRecord.pktFlow[0] = our IP
+    	RRPkt->routeRecord.position = 0;
+    	RRPkt->routeRecord.protocol = regularPkt->ipHeader.ip_p;
+    	RRPkt->ipHeader.ip_sum = checksum(regularPkt, sizeof(ipPacket));
+    	return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct RRPkt), (unsigned char*)RRPkt);
     }
 }
