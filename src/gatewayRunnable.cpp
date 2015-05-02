@@ -6,11 +6,12 @@
 int main(int argc, const char * argv[]) {
     Gateway gateway = Gateway();
     GatewayFilter filter = GatewayFilter();
-    struct gwFilterData* gwFD;
-    gwFD->st = &gateway.st;
-    gwFD->gw = &gateway;
+    struct gwFilterData gwFD;
+    gwFD.st = &gateway.st;
+    gwFD.gw = &gateway;
+    Logger::initLog("gout.txt");
 
-    filter.startFilterThread(gwFD);
+    filter.startFilterThread(&gwFD);
 
     gateway.initBlacklist();
 
@@ -47,6 +48,7 @@ int main(int argc, const char * argv[]) {
     for(;;){
         unsigned int addr_size = sizeof(their_addr);
         int sock = accept(Gateway::s, (sockaddr *) &their_addr, &addr_size);
+        Logger::writeToLog("accept()ed a connection");
         pthread_t t;
         pthread_create(&t, NULL, &recvBlockReq, (void *)sock);
     }

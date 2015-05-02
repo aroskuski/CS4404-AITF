@@ -13,6 +13,7 @@
 #include <fstream>
 #include <pthread.h>
 #include <semaphore.h>
+#include <ctime>
 
 class Logger {
 public:

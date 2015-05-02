@@ -16,6 +16,8 @@
  */
 int main(int argc, const char * argv[]) {
 
+	Logger::initLog("hout.txt");
+
     // declaration of local variables for main function
     bool isVerbose = false;
 
@@ -92,6 +94,7 @@ int main(int argc, const char * argv[]) {
         int sock = accept(Host::s, (sockaddr *) &their_addr, &addr_size);
         if (sock != -1) {
             pthread_t t;
+            Logger::writeToLog("accept()ed connection");
             pthread_create(&t, NULL, &hostRecvThread, (void*) sock);
         }
         else {

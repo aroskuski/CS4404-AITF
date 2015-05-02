@@ -106,6 +106,7 @@ void Gateway::sendBlockReq(Flow f){
 }
 
 void *recvBlockReq(void *arg){
+
 	Gateway *g = (Gateway *) arg;
 	int sock = (long) arg;
 	char buf[1500];
@@ -116,6 +117,7 @@ void *recvBlockReq(void *arg){
 	//FlowEntry fe = f.getAttackGateway();
 	//std::string ipaddr = std::string(fe.ipaddr[0]) + "." + std::string(fe.ipaddr[1]) + "." + std::string(fe.ipaddr[2]) + "." + std::string(fe.ipaddr[3]);
 	if(h->commandFlags == 1){
+		Logger::writeToLog("I am the victim gateway in this handshake");
 		sock = socket(AF_INET, SOCK_STREAM, 0);
 		FlowEntry fe = f.getAttackGateway();
 		char ipaddrstring[20];
@@ -141,6 +143,7 @@ void *recvBlockReq(void *arg){
 
 		shutdown(sock, 2);
 	} else if ( h->commandFlags == 2){
+		Logger::writeToLog("I am the attack gateway in this handshake");
 		FlowEntry fe = f.getAttackHost();
 		char ipaddrstring[20];
 		sprintf(ipaddrstring, "%d.%d.%d.%d",fe.ipaddr[0],fe.ipaddr[1],fe.ipaddr[2],fe.ipaddr[3]);
@@ -172,6 +175,7 @@ void *recvBlockReq(void *arg){
 		g->remTempBlock(ipaddr);
 		shutdown(sock, 2);
 	} else {
+		Logger::writeToLog("I am an escalating gateway in this handshake");
 		char ipaddrcstring[20];
 		inet_ntop(AF_INET, &h->pktFlow[h->payloadSize], ipaddrcstring, 20);
 		std::string ipaddr = std::string(ipaddrcstring);
@@ -214,7 +218,8 @@ void *gatewayBlockCleanupThread(void *arg){
 			it->ttl--;
 			if(it->ttl == 0){
 				std::string tempstr = std::string("iptables -D INPUT ") + it->ipaddr + std::string(" -j DROP");
-				system(tempstr.c_str());
+				std::cout << tempstr << "\n";
+				//system(tempstr.c_str());
 			}
 		}
 		sem_post(&Gateway::lsem);
@@ -230,6 +235,7 @@ void *gatewayTaskThread(void *arg){
 
 	for(;;){
 		sem_wait(&Gateway::sem);
+		Logger::writeToLog("Gateway task semaphore posted");
 		sem_wait(&Gateway::qsem);
 		Flow f = Gateway::q.front();
 		Gateway::q.pop();
@@ -248,8 +254,8 @@ void Gateway::tempBlock(std::string ipaddr){
 	gatewayblock gb;
 	gb.ipaddr = ipaddr;
 	gb.ttl = 999;
-	std::string tempstr = std::string("iptables -A OUTPUT ") + gb.ipaddr + std::string(" -j DROP");
-	system(tempstr.c_str());
+	std::string tempstr = std::string("iptables -A INPUT ") + gb.ipaddr + std::string(" -j DROP");
+	//system(tempstr.c_str());
 	Gateway::blocklist.push_back(gb);
 }
 
@@ -257,13 +263,14 @@ void Gateway::remTempBlock(std::string ipaddr){
 	gatewayblock gb;
 	gb.ipaddr = ipaddr;
 	gb.ttl = 999;
-	std::string tempstr = std::string("iptables -D OUTPUT ") + gb.ipaddr + std::string(" -j DROP");
-	system(tempstr.c_str());
+	std::string tempstr = std::string("iptables -D INPUT ") + gb.ipaddr + std::string(" -j DROP");
+	//system(tempstr.c_str());
 	Gateway::blocklist.remove(gb);
 	sem_post(&Gateway::lsem);
 }
 
 void Gateway::escalate(Flow f){
+	Logger::writeToLog("escalating");
 	ShadowEntry *se = st.getshadowEntry(f);
 	se->esccount++;
 	if(f.getVictimGateway().ipaddr == f.getIndex(se->esccount + 1).ipaddr){//+1 to skip attack host
@@ -275,8 +282,8 @@ void Gateway::escalate(Flow f){
 		std::string ipaddr = std::string(ipaddrstring);
 		gb.ipaddr = ipaddr;
 		gb.ttl = 30;
-		std::string tempstr = std::string("iptables -A OUTPUT ") + gb.ipaddr + std::string(" -j DROP");
-		system(tempstr.c_str());
+		std::string tempstr = std::string("iptables -A INPUT ") + gb.ipaddr + std::string(" -j DROP");
+		//system(tempstr.c_str());
 		Gateway::blocklist.push_back(gb);
 		sem_post(&Gateway::lsem);
 	} else {

@@ -21,8 +21,11 @@ Logger::~Logger() {
 
 void Logger::writeToLog(std::string s){
 	//ofstream &out = *(Logger::outfile);
+	time_t t = time(0);
+	struct tm * timeinfo;
+	timeinfo = localtime(&t);
 	sem_wait(&sem);
-	*(Logger::outfile) << s << '\n';
+	*(Logger::outfile) << asctime(timeinfo) << ": " << s << '\n';
 	sem_post(&sem);
 }
 

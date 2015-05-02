@@ -15,6 +15,7 @@ sem_t Host::lsem;
 int Host::s;
 
 void *hostRecvThread(void *arg){
+	Logger::writeToLog("Honoring Block request");
 	int sock = (long) arg;
 	char buf[PACKET_PAYLOAD_SIZE];
 	int len = recv(sock, buf, PACKET_PAYLOAD_SIZE, 0);
@@ -59,6 +60,7 @@ void *hostTaskThread(void *arg){
 
 	for(;;){
 		sem_wait(&Host::sem);
+		Logger::writeToLog("Host task semaphore has been posted");
 		sem_wait(&Host::qsem);
 		Flow f = Host::q.front();
 		sem_post(&Host::qsem);
@@ -81,6 +83,7 @@ Host::~Host() {
 }
 
 void Host::sendBlockReq(Flow f){
+	Logger::writeToLog("Sending a Block Request");
 	FlowEntry fe = f.getVictimGateway();
 	char ipaddrstring[20];
 	sprintf(ipaddrstring, "%d.%d.%d.%d",fe.ipaddr[0],fe.ipaddr[1],fe.ipaddr[2],fe.ipaddr[3]);

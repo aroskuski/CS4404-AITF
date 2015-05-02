@@ -147,17 +147,17 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         Flow flow = Flow(AITFPkt->rr.pktFlow, AITFPkt->rr.length - (AITFPkt->rr.length - AITFPkt->rr.position + 1));
         
         // determine if the flow is in the shadowtable and respond to the gateway if it is
-        if (gwFD->st->containsFlow(flow)) {
-        	gwFD->gw->sendMessage(flow);
-        	return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
-        }
+        //if (gwFD->st->containsFlow(flow)) {
+        //	gwFD->gw->sendMessage(flow);
+        //	return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+        //}
 
         // determine whether the next hop is legacy and remove the route record if it is
         if (gwFD->gw->checkBlacklist(ntohl((uint32_t)AITFPkt->ipHeader.ip_dst.s_addr))) {
         	RRPkt = (struct RRPacket*) AITFPkt;
         	regularPkt->ipHeader = RRPkt->ipHeader;
         	memset(regularPkt->payload, 0, 1500);
-        	memcpy(regularPkt->payload, RRPkt->payload, 1500);
+        	memmove(regularPkt->payload, RRPkt->payload, 1500);
         	regularPkt->ipHeader.ip_sum = checksum(regularPkt, sizeof(ipPacket));
         	return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct ipPacket), (unsigned char*)regularPkt);
         }
@@ -171,7 +171,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     	RRPkt->ipHeader = regularPkt->ipHeader;
     	RRPkt->ipHeader.ip_p = 61;
     	memset(RRPkt->payload, 0, 1500);
-    	memcpy(RRPkt->payload, regularPkt->payload, 1500);
+    	memmove(RRPkt->payload, regularPkt->payload, 1500);
     	RRPkt->routeRecord.length = 10;
     	// RRPkt->routeRecord.pktFlow[0] = our IP
     	RRPkt->routeRecord.position = 0;

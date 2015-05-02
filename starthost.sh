@@ -1,6 +1,10 @@
-#!bin/bash
+#!/bin/bash
 
-HostAITF &
+./src/hostAITF &
 sleep 5
-iptables -A INPUT -J NFQUEUE--queue-num 0
-iptables -A OUTPUT -J NFQUEUE--queue-num 0
+iptables -A INPUT -j NFQUEUE --queue-num 0
+iptables -A OUTPUT -j NFQUEUE --queue-num 0
+sleep 60
+iptables -D INPUT -j NFQUEUE --queue-num 0
+iptables -D OUTPUT -j NFQUEUE --queue-num 0
+killall hostAITF

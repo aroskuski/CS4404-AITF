@@ -56,12 +56,14 @@ bool ShadowTable::containsHost(unsigned char *h){
 	timespec ts;
 	clock_gettime(CLOCK_MONOTONIC, &ts);
 	for(std::list<ShadowEntry>::iterator it = hostList.begin(); it != hostList.end(); it++){
-		if (it->ipaddr[0] == h[0] && it->ipaddr[1] == h[1] && it->ipaddr[2] == h[2] && it->ipaddr[3] == h[3] && (ts.tv_sec > it->timeAdded.tv_sec + it->ttl)){
+		if (it->ipaddr[0] == h[0] && it->ipaddr[1] == h[1] && it->ipaddr[2] == h[2] && it->ipaddr[3] == h[3] && (ts.tv_sec < it->timeAdded.tv_sec + it->ttl)){
+			sem_post(&sem);
 			return true;
 		}
 	}
-	return false;
 	sem_post(&sem);
+	return false;
+
 }
 
 bool ShadowTable::containsFlow(Flow f){
@@ -69,12 +71,14 @@ bool ShadowTable::containsFlow(Flow f){
 	timespec ts;
 	clock_gettime(CLOCK_MONOTONIC, &ts);
 	for(std::list<ShadowEntry>::iterator it = hostList.begin(); it != hostList.end(); it++){
-		if (it->f == f && (ts.tv_sec > it->timeAdded.tv_sec + it->ttl)){
+		if (it->f == f && (ts.tv_sec < it->timeAdded.tv_sec + it->ttl)){
+			sem_post(&sem);
 			return true;
 		}
 	}
-	return false;
 	sem_post(&sem);
+	return false;
+
 }
 
 void ShadowTable::clean(){
