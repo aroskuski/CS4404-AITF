@@ -14,7 +14,7 @@ hostRunnable.o: hostRunnable.cpp
 	g++ -c hostRunnable.cpp
 
 gatewayAITF: gatewayRunnable.o Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o
-	g++ Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o -o gatewayAITF -lpthread -lssl -lcrypto -lnetfilter_queue
+	g++ gatewayRunnable.o Gateway.o GatewayPolicyModule.o GatewayFilter.o Flow.o Hash.o ShadowTable.o Logger.o Packet.o -o gatewayAITF -lpthread -lssl -lcrypto -lnetfilter_queue
 
 gatewayRunnable.o: gatewayRunnable.cpp
 	g++ -c gatewayRunnable.cpp

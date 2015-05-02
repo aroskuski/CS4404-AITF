@@ -8,6 +8,15 @@
 
 #include "GatewayFilter.h"
 
+GatewayFilter::GatewayFilter(){
+
+}
+
+GatewayFilter::~GatewayFilter(){
+
+}
+
+
 /**
  * This method is used spawning a thread for carrying out the
  * six responsibilities listed for the GatewayFilter class.
@@ -144,7 +153,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         }
 
         // determine whether the next hop is legacy and remove the route record if it is
-        if (gwFD->gw->checkBlacklist(ntohl((uint32_t)AITFPkt->ipHeader.ip_dst))) {
+        if (gwFD->gw->checkBlacklist(ntohl((uint32_t)AITFPkt->ipHeader.ip_dst.s_addr))) {
         	RRPkt = (struct RRPacket*) AITFPkt;
         	regularPkt->ipHeader = RRPkt->ipHeader;
         	memset(regularPkt->payload, 0, 1500);
@@ -157,7 +166,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     }
     
     // add a route record shim to the received packet if the next hop is not the destination
-    if (!(gwFD->gw->checkBlacklist(ntohl((uint32_t)regularPkt->ipHeader.ip_dst)))) {
+    if (!(gwFD->gw->checkBlacklist(ntohl((uint32_t)regularPkt->ipHeader.ip_dst.s_addr)))) {
     	RRPkt = (struct RRPacket*) regularPkt;
     	RRPkt->ipHeader = regularPkt->ipHeader;
     	RRPkt->ipHeader.ip_p = 61;
@@ -168,6 +177,6 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     	RRPkt->routeRecord.position = 0;
     	RRPkt->routeRecord.protocol = regularPkt->ipHeader.ip_p;
     	RRPkt->ipHeader.ip_sum = checksum(regularPkt, sizeof(ipPacket));
-    	return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct RRPkt), (unsigned char*)RRPkt);
+    	return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct RRPacket), (unsigned char*)RRPkt);
     }
 }

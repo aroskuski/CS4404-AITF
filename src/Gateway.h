@@ -22,7 +22,7 @@
 #include <fstream>
 #include <iostream>
 #include "Flow.h"
-#include "GatewayFilter.h"
+
 #include "ShadowTable.h"
 #include "Packet.h"
 #include "Hash.h"
@@ -32,10 +32,7 @@ struct gatewayblock{
 	int ttl;
 };
 
-struct gwFilterData {
-	ShadowTable* st;
-	Gateway* gw;
-};
+
 
 class Gateway {
 public:
@@ -58,6 +55,8 @@ public:
 	void initBlacklist();
 	static std::list<uint32_t> blacklist;
 };
+
+#include "GatewayFilter.h"
 
 void *recvBlockReq(void * arg);
 void *gatewayTaskThread(void *arg);

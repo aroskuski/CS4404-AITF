@@ -1,13 +1,14 @@
 #include <iostream>
-#include "Gateway.h"
 #include "GatewayFilter.h"
+#include "Gateway.h"
+
 
 int main(int argc, const char * argv[]) {
     Gateway gateway = Gateway();
     GatewayFilter filter = GatewayFilter();
-    struct gatewayFilterData* gwFD;
+    struct gwFilterData* gwFD;
     gwFD->st = &gateway.st;
-    gwFD->gw = &this;
+    gwFD->gw = &gateway;
 
     filter.startFilterThread(gwFD);
 

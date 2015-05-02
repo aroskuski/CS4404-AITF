@@ -16,12 +16,13 @@ sem_t Gateway::qsem;
 std::queue<Flow> Gateway::q = std::queue<Flow>();
 std::list<gatewayblock> Gateway::blocklist = std::list<gatewayblock>();
 sem_t Gateway::lsem;
-std::list<uint32_t> blacklist = std::list<uint32_t>();
+std::list<uint32_t> Gateway::blacklist = std::list<uint32_t>();
 
 bool operator==(const gatewayblock& lhs, const gatewayblock& rhs){
 	return lhs.ipaddr[0] == rhs.ipaddr[0] && lhs.ipaddr[1] == rhs.ipaddr[1] && lhs.ipaddr[2] == rhs.ipaddr[2] && lhs.ipaddr[3] == rhs.ipaddr[3] && lhs.ttl == rhs.ttl;
 }
 
+/*
 int main() {
 	Gateway gateway = Gateway();
 	GatewayFilter filter = GatewayFilter();
@@ -70,6 +71,7 @@ int main() {
 		pthread_create(&t, NULL, &recvBlockReq, (void *)sock);
 	}
 }
+*/
 
 Gateway::Gateway() {
 	// TODO Auto-generated constructor stub
