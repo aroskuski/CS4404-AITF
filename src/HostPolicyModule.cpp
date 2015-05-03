@@ -18,5 +18,5 @@ HostPolicyModule::~HostPolicyModule() {
 
 bool HostPolicyModule::checkHighFlowPolicy(Flow f){
 
-	return true;
+	return f.size() > 4;
 }
