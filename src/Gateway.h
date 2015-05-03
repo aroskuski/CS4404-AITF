@@ -22,7 +22,7 @@
 #include <fstream>
 #include <iostream>
 #include "Flow.h"
-
+#include "Logger.h"
 #include "ShadowTable.h"
 #include "Packet.h"
 #include "Hash.h"

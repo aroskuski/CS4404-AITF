@@ -1,0 +1,57 @@
+Execute at 10.4.20.1 
+ip route add 10.4.20.3 10.4.20.2 proto static
+ip route add 10.4.20.4 10.4.20.2 proto static
+ip route add 10.4.20.5 10.4.20.2 proto static
+ip route add 10.4.20.6 10.4.20.2 proto static
+ip route add 10.4.20.7 10.4.20.2 proto static
+ip route add 10.4.20.8 10.4.20.2 proto static
+
+Execute at 10.4.20.2
+ip route add 10.4.20.4 10.4.20.3 proto static
+ip route add 10.4.20.5 10.4.20.3 proto static
+ip route add 10.4.20.6 10.4.20.3 proto static
+ip route add 10.4.20.7 10.4.20.3 proto static
+ip route add 10.4.20.8 10.4.20.3 proto static
+
+Execute at 10.4.20.3
+ip route add 10.4.20.1 10.4.20.2 proto static
+ip route add 10.4.20.5 10.4.20.4 proto static
+ip route add 10.4.20.7 10.4.20.6 proto static
+ip route add 10.4.20.8 10.4.20.6 proto static
+
+Execute at 10.4.20.4
+ip route add 10.4.20.2 10.4.20.3 proto static
+ip route add 10.4.20.1 10.4.20.3 proto static
+ip route add 10.4.20.6 10.4.20.3 proto static
+ip route add 10.4.20.7 10.4.20.3 proto static
+ip route add 10.4.20.8 10.4.20.3 proto static
+
+Execute at 10.4.20.5
+ip route add 10.4.20.3 10.4.20.4 proto static
+ip route add 10.4.20.2 10.4.20.4 proto static
+ip route add 10.4.20.1 10.4.20.4 proto static
+ip route add 10.4.20.6 10.4.20.4 proto static
+ip route add 10.4.20.7 10.4.20.4 proto static
+ip route add 10.4.20.8 10.4.20.4 proto static
+
+Execute at 10.4.20.6
+ip route add 10.4.20.1 10.4.20.3 proto static
+ip route add 10.4.20.2 10.4.20.3 proto static
+ip route add 10.4.20.4 10.4.20.3 proto static
+ip route add 10.4.20.5 10.4.20.3 proto static
+ip route add 10.4.20.8 10.4.20.7 proto static
+
+Execute at 10.4.20.7
+ip route add 10.4.20.1 10.4.20.6 proto static
+ip route add 10.4.20.2 10.4.20.6 proto static
+ip route add 10.4.20.3 10.4.20.6 proto static
+ip route add 10.4.20.4 10.4.20.6 proto static
+ip route add 10.4.20.5 10.4.20.6 proto static
+
+Execute at 10.4.20.8
+ip route add 10.4.20.1 10.4.20.7 proto static
+ip route add 10.4.20.2 10.4.20.7 proto static
+ip route add 10.4.20.3 10.4.20.7 proto static
+ip route add 10.4.20.4 10.4.20.7 proto static
+ip route add 10.4.20.5 10.4.20.7 proto static
+ip route add 10.4.20.6 10.4.20.7 proto static

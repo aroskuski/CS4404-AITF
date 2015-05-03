@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./src/gatewayAITF &
+/usr/bin/time ./src/gatewayAITF > gstd.txt 2> time.txt &
 sleep 5
 iptables -A INPUT -j NFQUEUE --queue-num 0
 iptables -A OUTPUT -j NFQUEUE --queue-num 0

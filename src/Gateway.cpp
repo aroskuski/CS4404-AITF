@@ -81,7 +81,7 @@ Gateway::Gateway() {
 Gateway::~Gateway() {
 	// TODO Auto-generated destructor stub
 }
-
+/*
 void Gateway::sendBlockReq(Flow f){
 	FlowEntry fe = f.getAttackHost();
 	char ipaddrstring[20];
@@ -104,6 +104,7 @@ void Gateway::sendBlockReq(Flow f){
 	shutdown(sock, 2);
 	freeaddrinfo(res);
 }
+*/
 
 void *recvBlockReq(void *arg){
 

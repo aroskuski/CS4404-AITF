@@ -23,9 +23,10 @@
 #include "Flow.h"
 #include "Packet.h"
 #include "ShadowTable.h"
+#include "Logger.h"
 
 #define PACKET_PAYLOAD_SIZE 1500
-#define PORT "1025"
+#define PORT "41025"
 
 struct hostblock{
 	std::string ipaddr;

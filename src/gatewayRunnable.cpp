@@ -36,7 +36,7 @@ int main(int argc, const char * argv[]) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    getaddrinfo(NULL, "1025", &hints, &res);
+    getaddrinfo(NULL, "41025", &hints, &res);
 
     bind(Gateway::s, res->ai_addr, res->ai_addrlen);
 
@@ -48,7 +48,12 @@ int main(int argc, const char * argv[]) {
     for(;;){
         unsigned int addr_size = sizeof(their_addr);
         int sock = accept(Gateway::s, (sockaddr *) &their_addr, &addr_size);
-        Logger::writeToLog("accept()ed a connection");
+        addr_size = sizeof(their_addr);
+        getpeername(sock, (sockaddr *) &their_addr, &addr_size);
+        struct sockaddr_in *saddr = (struct sockaddr_in *)&their_addr;
+        char addr[1000];
+        inet_ntop(AF_INET, &saddr->sin_addr, addr, 1000);
+        Logger::writeToLog("accept()ed a connection from " + std::string(addr));
         pthread_t t;
         pthread_create(&t, NULL, &recvBlockReq, (void *)sock);
     }

@@ -18,5 +18,5 @@ HostPolicyModule::~HostPolicyModule() {
 
 bool HostPolicyModule::checkHighFlowPolicy(Flow f){
 
-	return false;
+	return true;
 }
