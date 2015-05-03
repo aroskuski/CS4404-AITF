@@ -141,12 +141,12 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         
         struct ifaddrs **ifp;
         struct ifaddrs *ifpoint;
-        struct sockaddr_in ip_address;
+        struct sockaddr_in *ip_address;
 
             	getifaddrs(ifp);
             	for (ifpoint = *ifp; ifpoint != NULL; ifpoint = ifpoint->ifa_next) {
             		if (strncmp(ifpoint->ifa_name, "eth0", 10) == 0) {
-            			ip_address = (sockaddr_in) ifpoint->ifa_addr;
+            			ip_address = (sockaddr_in *) ifpoint->ifa_addr;
             			break;
             		}
             	}
@@ -154,7 +154,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         // add to the route record of the received AITF packet
         Hash hsh = Hash();
         unsigned int outlen = 0;
-        AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].ip = ip_address;
+        AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].ip = ip_address->sin_addr;
         AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].nonce = 1;
         
         // produce the flow to send to the policy module

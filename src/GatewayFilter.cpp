@@ -152,6 +152,20 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         //	return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
         //}
 
+        struct ifaddrs **ifp;
+        struct ifaddrs *ifpoint;
+        sockaddr_in *ip_address;
+
+        getifaddrs(ifp);
+           	for (ifpoint = *ifp; ifpoint != NULL; ifpoint = ifpoint->ifa_next) {
+           		if (strncmp(ifpoint->ifa_name, "eth0", 10) == 0) {
+        		ip_address = (sockaddr_in *) ifpoint->ifa_addr;
+        		break;
+        	}
+        }
+        RRPkt->routeRecord.position++;
+        RRPkt->routeRecord.pktFlow[RRPkt->routeRecord.position].ip = ip_address->sin_addr;
+
         // determine whether the next hop is legacy and remove the route record if it is
         if (gwFD->gw->checkBlacklist(ntohl((uint32_t)AITFPkt->ipHeader.ip_dst.s_addr))) {
         	RRPkt = (struct RRPacket*) AITFPkt;
@@ -177,17 +191,17 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
 
     	struct ifaddrs **ifp;
     	struct ifaddrs *ifpoint;
-    	sockaddr_in ip_address;
+    	sockaddr_in *ip_address;
 
     	getifaddrs(ifp);
     	for (ifpoint = *ifp; ifpoint != NULL; ifpoint = ifpoint->ifa_next) {
     		if (strncmp(ifpoint->ifa_name, "eth0", 10) == 0) {
-    			ip_address = (sockaddr_in) ifpoint->ifa_addr;
+    			ip_address = (sockaddr_in *) ifpoint->ifa_addr;
     			break;
     		}
     	}
 
-    	RRPkt->routeRecord.pktFlow[0] = ip_address;
+    	RRPkt->routeRecord.pktFlow[0].ip = ip_address->sin_addr;
     	RRPkt->routeRecord.position = 0;
     	RRPkt->routeRecord.protocol = regularPkt->ipHeader.ip_p;
     	RRPkt->ipHeader.ip_sum = checksum(regularPkt, sizeof(ipPacket));
