@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <ifaddrs.h>
 #include <netinet/ip.h>
 #include <netinet/in.h>
 #include <linux/netfilter.h>
