@@ -8,6 +8,7 @@
 
 #include "HostFilter.h"
 
+
 HostFilter::HostFilter(){
 
 }
@@ -109,6 +110,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     struct ipPacket* regularPkt;
     struct ipPacket* newPkt;
     struct AITFPacket* AITFPkt;
+    struct AITFPacket* newAITFPkt;
     struct routeRecord* routeRecord;
     struct nfqnl_msg_packet_hdr *header;
 
@@ -137,11 +139,22 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
             return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
         }
         
+        struct ifaddrs **ifp;
+        struct ifaddrs *ifpoint;
+        struct sockaddr_in ip_address;
+
+            	getifaddrs(ifp);
+            	for (ifpoint = *ifp; ifpoint != NULL; ifpoint = ifpoint->ifa_next) {
+            		if (strncmp(ifpoint->ifa_name, "eth0", 10) == 0) {
+            			ip_address = (sockaddr_in) ifpoint->ifa_addr;
+            			break;
+            		}
+            	}
+
         // add to the route record of the received AITF packet
         Hash hsh = Hash();
-        //unsigned char[4] ourIp = "";
         unsigned int outlen = 0;
-        AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].ip = AITFPkt->ipHeader.ip_dst;
+        AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].ip = ip_address;
         AITFPkt->rr.pktFlow[AITFPkt->rr.position + 1].nonce = 1;
         
         // produce the flow to send to the policy module
@@ -163,5 +176,15 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
         return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(ipPacket), (const unsigned char*) newPkt);
     }
     std::cout << "- Returning packet back to queue" << std::endl;
-    return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+
+    newAITFPkt->ipHeader = regularPkt->ipHeader;
+    memmove(newAITFPkt->payload, regularPkt->payload, 1500);
+    newAITFPkt->rr.length = 10;
+    newAITFPkt->rr.position = 0;
+    newAITFPkt->rr.protocol = 61;
+    newAITFPkt->rr.pktFlow[0].ip = regularPkt->ipHeader.ip_src;
+    newAITFPkt->rr.pktFlow[0].nonce = 1;
+    newAITFPkt->ipHeader.ip_sum = checksum(newAITFPkt, sizeof(AITFPacket));
+
+    return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(AITFPacket), (const unsigned char*) newAITFPkt);
 }

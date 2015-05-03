@@ -167,16 +167,31 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *msg, struct nfq_data *pk
     
     // add a route record shim to the received packet if the next hop is not the destination
     if (!(gwFD->gw->checkBlacklist(ntohl((uint32_t)regularPkt->ipHeader.ip_dst.s_addr)))) {
+
     	RRPkt = (struct RRPacket*) regularPkt;
     	RRPkt->ipHeader = regularPkt->ipHeader;
     	RRPkt->ipHeader.ip_p = 61;
     	//memset(RRPkt->payload, 0, 1500);
     	memmove(RRPkt->payload, regularPkt->payload, 1500);
     	RRPkt->routeRecord.length = 10;
-    	// RRPkt->routeRecord.pktFlow[0] = our IP
+
+    	struct ifaddrs **ifp;
+    	struct ifaddrs *ifpoint;
+    	sockaddr_in ip_address;
+
+    	getifaddrs(ifp);
+    	for (ifpoint = *ifp; ifpoint != NULL; ifpoint = ifpoint->ifa_next) {
+    		if (strncmp(ifpoint->ifa_name, "eth0", 10) == 0) {
+    			ip_address = (sockaddr_in) ifpoint->ifa_addr;
+    			break;
+    		}
+    	}
+
+    	RRPkt->routeRecord.pktFlow[0] = ip_address;
     	RRPkt->routeRecord.position = 0;
     	RRPkt->routeRecord.protocol = regularPkt->ipHeader.ip_p;
     	RRPkt->ipHeader.ip_sum = checksum(regularPkt, sizeof(ipPacket));
+
     	return nfq_set_verdict(qh, id, NF_ACCEPT, sizeof(struct RRPacket), (unsigned char*)RRPkt);
     }
 }
